@@ -21,7 +21,7 @@ bool Bus::set(bus_status *s){
         return false;
     }
 
-    if (s->r == READ){
+    if (s->request == READ){
         _mr = 0;
         _mw = 1;
     } else {
@@ -41,7 +41,7 @@ bool Bus::get(bus_status *s){
         return false;
     }
 
-    s->r = (_mr == 0 && _mw == 1) ? READ : WRITE;
+    s->request = (_mr == 0 && _mw == 1) ? READ : WRITE;
     s->address = address;
     s->data = data;
     busy = false;
