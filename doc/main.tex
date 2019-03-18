@@ -146,16 +146,35 @@ Physical main bus of \computername{} presents the following wires.
   \item \textbf{data:} is 32~wires wide and holds the actual data that must be read or written;
 \end{itemize}
 
-Thus, main computer bus can be represented in the simulation software by means of the following global \texttt{Bus} structure.
+Thus, main computer bus can be represented in the simulation software by means of the following structures:
 
 \begin{verbatim}
-struct Bus {
-  bool busy;
-  bool _mr, _mw;
-  uint16_t address;
-  uint32_t data;
-}
+enum request_t { READ, WRITE };
+
+struct bus_status {
+    request_t request;
+    uint16_t address;
+    uint32_t data;
+};
+
+class Bus {
+    private:
+        bool busy;
+        request_t request;
+        uint16_t address;
+        uint32_t data;
+    public:
+        Bus();
+        bool set(bus_status *s);
+        bool get(bus_status *s);
+        void print_status();
+};
 \end{verbatim}
+
+Please note that the address line is 16~bit wide, but only 14 of them are actually used, since \memoryname{} holds only $2^{14} = 16K$ memory locations.
+In particular, the 2 least significant bits are always assumed to be 0.
+
+This choice has been agreed with the cache controller designers.
 
 % BHA Protocol
 \subsection{Bus handshake protocol}
@@ -169,18 +188,20 @@ In the simulation software, modules can:
 Actions on bus must be performed in the simulation using the following protocol.
 
 \begin{itemize}
-  \item being idle: \texttt{bus} structure must not be read or written;
-  \item read data: data can be read only upon receiving a message from another module.
-  When data has been read from the global \texttt{bus} structure into local structures, bus busy bit must be clear to terminate the handshake.
-  \item write data: when a module wants to occupy the bus for writing data, first it must ensure that bus is free by checking the busy wire status.
+  \item being idle: \texttt{set()} and \texttt{get()} methods of \texttt{Bus} class must not be called;
+  \item read data: data can be read only upon receiving a message from another module. Data can be read using the \texttt{get()} method. It is not possible to read data more than once.
+  \item write data: data can be written using the \texttt{set()} method;
   \begin{itemize}
-    \item if busy bit is 0, data can be written onto the bus and bus busy bit must be set; moreover, destination module must be notified of the bus change by sending it a message using methods provided by the orchestrator.
+    \item if busy bit is~1, data is not actually written onto the bus, \texttt{set()} method returns \texttt{false} and module must wait and schedule data writes onto the bus at a later time (eg. next clock tick);
+    \item if busy bit is~0, data is actually written onto the bus and \texttt{set()} method returns \texttt{true}.
+    Once written data to bus, destination module must be notified of the bus change by sending it a message using methods provided by the orchestrator.
     For the sake of simplicity, message passed through the orchestrator can be tought as a model for the hardware \emph{enable} wire;
-    \item if busy bit is 1, data must not be written onto the bus, and module must wait for the next quantum of time (\emph{tick});
   \end{itemize}
 \end{itemize}
 
-Please note that this does not model the actual hardware behavior, since a reading module can not clear a set bit on the bus; but since it is not necessary to perfectly reproduce the hardware behavior, this handshake is used in order to simplify the simulation software.
+Please note that this does not model the actual hardware behavior, since a reading module can not clear a set bit on the bus;
+moreover, this get/set protocol does not properly fit the event-driven programming paradigm.
+But since it is not necessary to perfectly reproduce the hardware behavior, and since a perfectly event driven protocol introduces unnecessary complications, this handshake has been chosen in order to simplify the simulation software.
 
 Note: since simulation is sequential and modules are always notified in the same order, concurrency is not actually modeled, and some modules can suffer from starvation.
 
@@ -192,7 +213,108 @@ Note: since simulation is sequential and modules are always notified in the same
 % data
 % (be careful and remember to represent both the read and the write operation examples)
 
-% TO BE DONE
+\section{DRAM Internals}
+\subsection{Circuit}
+A common DRAM memory is internally organized like the following circuit.
+
+A bit at the cross of the two dashed wires has been highlighted to help understanding.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  % matrix square
+  \foreach \x in {3,...,0}
+    %~ \draw[line width=0.25mm] (10 + \x/2, 10 + \x/2)--(20 + \x/2, 10 + \x/2)--(20 + \x/2, 20 + \x/2)--(10 + \x/2, 20 + \x/2)--(10 + \x/2, 10 + \x/2);
+    \draw[fill=white, line width=0.25mm] (10 + \x/2, 10 + \x/2) rectangle (20 + \x/2, 20 + \x/2);
+  % matrix lines
+  \foreach \x in {1,...,19}
+    \draw (10 + \x / 2, 9.5)--(10 + \x / 2, 10);
+  \foreach \x in {1,...,19}
+    \draw (9.5, \x / 2 + 10)--(10, \x / 2 + 10);
+
+  % row decoder
+  \draw (9.5, 10)--(9.5, 20)--(8.5, 19)--(8.5, 11)--(9.5, 10);
+  \node[rotate=270] at (9, 15){Row Decoder};
+
+  % column multiplexer
+  \draw (10, 9.5)--(20, 9.5)--(19, 8.5)--(11, 8.5)--(10, 9.5);
+  \node at (15, 9){Column Multiplexer};
+
+  % address lines
+  \draw[->] (6, 10.5)--(9, 10.5);
+  \draw[->] (8, 9)--(10.5, 9);
+  \draw (8, 10.5)--(8, 9);
+
+  % address lines split point
+  \node[draw, circle, fill=black] at (8, 10.5){};
+
+  % address lines width markers
+  \node[draw, strike out] at (7, 10.5){};
+  \node[below] at (7, 10.5){14};
+  \node[above] at (7, 10.5){address};
+
+  \node[draw, strike out] at (8.5, 10.5){};
+  \node[below] at (8.5, 10.5){6};
+
+  \node[draw, strike out] at (8.5, 9){};
+  \node[below] at (9, 9){8};
+
+  % input/output line
+  \draw[->] (15, 8.5)--(15, 7);
+  \node at (15, 7.5){data};
+
+  % example bit
+  \draw[dashed] (10, 12)--(20, 12);
+  \draw[dashed] (14, 10)--(14, 20);
+
+  \node[draw, circle, fill=gray] at (14, 12){};
+
+\end{tikzpicture}
+\caption{Simplified DRAM internal circuit}
+\end{figure}
+
+\memoryname{} is a DRAM actually made by:
+\begin{itemize}
+  \item 32 matrixes: matrix \emph{n} holds the corresponding \emph{n}-th bit of the word connected to the bus;
+  each matrix consists of $64 \times 256$ cells;
+  each cell holds one bit;
+  for practicity, in the above figure, only 4 matrixes have been drawn;
+  \item a row decoder: the row decoder is controlled by the 6 most significant bits of the address, and is used to select one of the $2^{6} = 64$ rows of the matrix;
+  \item a column multiplexer: the column multiplexer is controlled by the 8 least significant bits of the address, and is used to select one of the $2^{8} = 256$ columns of the matrix;
+\end{itemize}
+
+\memoryname{} DRAM is compatible with a real world DRAM, and is even simpler, since current memories have up to 64~bit wide buses and up to 8~K rows and columns.
+\\
+However, note that the above figure does not exactly represent a real DRAM, since some parts of the circuit, like the sense amplifier, have not been drawn because they are not relevant in our discussion.
+
+\subsection{Input and output}
+A memory controller is required to actually read and write a DRAM.
+It can reside inside the CPU/cache, on an external chip on the computer main board, or inside the memory itself; its positioning and details have not been taken in account, but we must suppose it exists somewhere.
+
+To control and actually read and write a DRAM, the following control lines are used by the memory controller.
+
+\begin{itemize}
+  \item \textbf{\textoverline{ras}}: the \emph{row address strobe} signal enables the row decoder circuit;
+  \item \textbf{\textoverline{cas}}: the \emph{column address strobe} signal enables the column multiplexer circuit;
+  \item \textbf{r/\textoverline{w}}: the \emph{read/write} signal controls if the cell has to be read or written;
+  \item \textbf{address}: the \emph{address} line holds the memory address of the cell;
+  \item \textbf{data}: the \emph{data} line holds the data read or written from/to the cell;
+\end{itemize}
+% all I/O lines and their description:
+% /ras
+% /cas
+% Address
+% R/W
+% data
+
+Reading and writing data in the matrix requires strict timing constraints to allow capacitors, sense amplifier and all the electronics to work properly.
+Different timings can be used, as explained in the following section.
+
+\section{DRAM control}
+\subsection{Simple read/write}
+% timing diagram
+
+% TO BE DONE -- THIS IS REALLY REALLY WRONG, JUST AN EXAMPLE
 \begin{figure}[H]
 \centering
 \begin{tikztimingtable}
@@ -212,22 +334,8 @@ Note: since simulation is sequential and modules are always notified in the same
 \caption{read handshake}
 \end{figure}
 
-\section{DRAM Internals}
-\subsection{Circuit}
-% proper picture of our dram
-% with cell matrix
 
-\subsection{Input and output}
-% all I/O lines and their description:
-% /ras
-% /cas
-% Address
-% R/W
-% data
 
-\section{DRAM control}
-\subsection{Simple read/write}
-% timing diagram
 \subsection{Fast page read/write}
 % timing diagram
 
