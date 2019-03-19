@@ -312,7 +312,8 @@ Different timings can be used, as explained in the following section.
 
 \section{DRAM control}
 
-\subsection{Simple read/write}
+\subsection{Simple access}
+This timing diagram represents the simplest memory cicle that can be used to read and write data in memory.
 
 \begin{minipage}{.45\textwidth}
 \begin{figure}[H]
@@ -340,10 +341,34 @@ Different timings can be used, as explained in the following section.
 \caption{simple write}
 \end{figure}
 \end{minipage}
-% timing diagram
 
-\subsection{Fast page read/write}
-% timing diagram
+\subsection{Fast page access}
+When accessing data it is possibile to take advantage of the principle of locality.
+
+Usually programs are sequential and have small loops, thus they use to access a small region of memory for a while. Moreover, they usually make computations over the same data for a while.
+
+To take advantage of both the spatial and the temporal locality of programs, it is possible to drive the memory matrix in such a way there is no need to make a complete full simple memory cycle for every access, but some operations can be avoided to save time.
+
+More in details, it is not necessary to deassert the \emph{row address strobe} when memory locations are accessed sequentially and row number does not change.
+
+Proper timing diagrams for fast page access are as the following.
+
+% it should be right, but please don't trust and re-check better
+\begin{minipage}{.45\textwidth}
+\begin{figure}[H]
+\centering
+\begin{tikztimingtable}
+{\textoverline{ras}}  & H H L L L      L L L L L L    L L L L L 3L 2H \\
+{\textoverline{cas}}  & H H H H L      L L H H H H    H L L L H 5H\\
+{r/\textoverline{w}}  & H H H H H      4H 2H          5H 5H\\
+{address}             & U 5D{address}  5U             5D{address}    5U \\
+{data}                & U 4U           4D{data} 2U    U U U 4D{data} 3U\\
+\end{tikztimingtable}
+\caption{fast page read}
+\end{figure}
+\end{minipage}
+% TODO -- missing fast page write cycle
+
 
 \section{Timings definition}
 % t_CL  CAS latency
