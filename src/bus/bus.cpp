@@ -2,8 +2,6 @@
 
 Bus::Bus(){
     busy = false;
-    _mr = 1;
-    _mw = 1;
 }
 
 /*
@@ -21,13 +19,7 @@ bool Bus::set(bus_status *s){
         return false;
     }
 
-    if (s->request == READ){
-        _mr = 0;
-        _mw = 1;
-    } else {
-        _mr = 1;
-        _mw = 0;
-    }
+    request = s->request;
     address = s->address;
     data = s->data;
     busy = true;
@@ -41,7 +33,7 @@ bool Bus::get(bus_status *s){
         return false;
     }
 
-    s->request = (_mr == 0 && _mw == 1) ? READ : WRITE;
+    s->request = request;
     s->address = address;
     s->data = data;
     busy = false;
@@ -49,9 +41,13 @@ bool Bus::get(bus_status *s){
     return true;
 }
 
-void Bus::print_status(){
-    printf("/mr\t%d\n", (int)_mr);
-    printf("/mw\t%d\n", (int)_mw);
-    printf("a15_a0\t0x%04x\n", address);
-    printf("d31_d0\t0x%08x\n", data);
+ostream& operator<<(ostream& os, const Bus& b){
+    if (b.request == READ)
+        os << "/mr\t0\n/mw\t1\n";
+    else
+        os << "/mr\t1\n/mw\t0\n";
+    os << "a15_a0\t0x" << setfill ('0') << setw(4) << hex << b.address << endl;
+    os << "d31_d0\t0x" << setfill ('0') << setw(8) << hex << b.data << endl;
+
+    return os;
 }
