@@ -311,30 +311,36 @@ Reading and writing data in the matrix requires strict timing constraints to all
 Different timings can be used, as explained in the following section.
 
 \section{DRAM control}
-\subsection{Simple read/write}
-% timing diagram
 
-% TO BE DONE -- THIS IS REALLY REALLY WRONG, JUST AN EXAMPLE
+\subsection{Simple read/write}
+
+\begin{minipage}{.45\textwidth}
 \begin{figure}[H]
 \centering
 \begin{tikztimingtable}
-{busy}              & D{0}  2D{1} D{0}\\
-{\textoverline{mr}} & X     2D{0} X\\
-{\textoverline{mw}} & X     2D{1} X      \\
-{address}           & X     2D{}  X\\
-{data}              & X     2X    D{}\\
-\\
-{send event}        & L     L A   L\\
-%~ \extracode
-%~ \begin{tikzpicture}
-  %~ \foreach \x in {1,...,6}
-  %~ \draw (\x,-7)--(\x,0);
-%~ \end{tikzpicture}
+{\textoverline{ras}}  & H H L L L      L L L L H H\\
+{\textoverline{cas}}  & H H H H L      L L H H H H\\
+{r/\textoverline{w}}  & H H H H H      4H 2H\\
+{address}             & U 5D{address}  5U \\
+{data}                & U 4U           4D{data} 2U\\
 \end{tikztimingtable}
-\caption{read handshake}
+\caption{simple read}
 \end{figure}
-
-
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+\begin{figure}[H]
+\centering
+\begin{tikztimingtable}
+{\textoverline{ras}}  & H H L L L      L L L L H H\\
+{\textoverline{cas}}  & H H H H L      L L H H H H\\
+{r/\textoverline{w}}  & H H L L L      L H 4H\\
+{address}             & U 5D{address}  5U \\
+{data}                & U 4U           4D{data} 2U\\
+\end{tikztimingtable}
+\caption{simple write}
+\end{figure}
+\end{minipage}
+% timing diagram
 
 \subsection{Fast page read/write}
 % timing diagram
