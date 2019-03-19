@@ -1,5 +1,8 @@
 #include <cstdint>
 #include <iostream>
+#include <iomanip>
+
+using namespace std;
 
 enum request_t {READ, WRITE};
 
@@ -15,16 +18,13 @@ class Bus {
         //static Bus *instance;
         // status
         bool busy;
-        /* ( It is possible to merge _mr and _mw in enum request_t */
-        bool _mr;
-        bool _mw;
-        /* ) */
+        request_t request;
         uint16_t address;
         uint32_t data;
     public:
         Bus();
         //static Bus *getInstance();
-        bool set(bus_status *s); // return true if the bus is idle
-        bool get(bus_status *s);
-        void print_status();
+        bool set(bus_status*); // return true if the bus is idle
+        bool get(bus_status*);
+        friend ostream& operator<<(ostream&, const Bus&);
 };

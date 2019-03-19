@@ -21,7 +21,7 @@ int main() {
 	bs.address = 0x7777;
 	bus->set(&bs);
 
-	bus->print_status();
+	cout << *bus;
 	/* ) */
 }
 
