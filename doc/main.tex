@@ -274,7 +274,7 @@ A bit at the cross of the two dashed wires has been highlighted to help understa
 
 \memoryname{} is a DRAM actually made by:
 \begin{itemize}
-  \item 32 matrixes: matrix \emph{n} holds the corresponding \emph{n}-th bit of the word connected to the bus;
+  \item 32 matrices: matrix \emph{n} holds the corresponding \emph{n}-th bit of the word connected to the bus;
   each matrix consists of $64 \times 256$ cells;
   each cell holds one bit;
   for practicity, in the above figure, only 4 matrixes have been drawn;
@@ -299,12 +299,6 @@ To control and actually read and write a DRAM, the following control lines are u
   \item \textbf{address}: the \emph{address} line holds the memory address of the cell;
   \item \textbf{data}: the \emph{data} line holds the data read or written from/to the cell;
 \end{itemize}
-% all I/O lines and their description:
-% /ras
-% /cas
-% Address
-% R/W
-% data
 
 Reading and writing data in the matrix requires strict timing constraints to allow capacitors, sense amplifier and all the electronics to work properly.
 Different timings can be used, as explained in the following section.
@@ -314,6 +308,8 @@ Different timings can be used, as explained in the following section.
 \subsection{Simple access}
 This timing diagram represents the simplest memory cicle that can be used to read and write data in memory.
 
+\begin{minipage}{\textwidth}
+\centering
 \begin{minipage}{.45\textwidth}
 \begin{figure}[H]
 \centering
@@ -340,6 +336,7 @@ This timing diagram represents the simplest memory cicle that can be used to rea
 \caption{simple write}
 \end{figure}
 \end{minipage}
+\end{minipage}
 
 \subsection{Fast page access}
 When accessing data it is possibile to take advantage of the principle of locality.
@@ -351,7 +348,10 @@ To take advantage of both the spatial and the temporal locality of programs, it 
 More in details, it is not necessary to deassert the \emph{row address strobe} when memory locations are accessed sequentially and row number does not change.
 
 Proper timing diagrams for fast page access are as the following.
-
+\\
+\\
+\begin{minipage}{\linewidth}
+\centering
 \begin{minipage}{.45\textwidth}
 \begin{figure}[H]
 \centering
@@ -378,24 +378,46 @@ Proper timing diagrams for fast page access are as the following.
 \caption{fast page write}
 \end{figure}
 \end{minipage}
-% TODO -- missing fast page write cycle
+\end{minipage}
+\\
+\\
+\\
+Please note that the first valid address transmitted needs more time to stabilize because it contains both a new row and column address, while subsequent ones need only the time to stabilize the least significant part which represents the column address.
 
-
-\section{Timings definition}
-% t_CL  CAS latency
-% t_RCD row address to column address delay
-% t_RP  row precharge time
-% t_RAS number of clock cycles to refresh a row
-
-% and their description
+\section{Delay definition}
+Analizing previous timing diagrams, these intervals can be observed:
+\begin{itemize}
+  \item $t_{CL}$ (CAS latency) is defined as the interval between the moment memory controller asserts the \emph{\textoverline{cas}} command and the moment when data is available on memory's output pins;
+  \item $t_{RCD}$ (RAS to CAS Delay time) is defined as the delay interval between the CAS assertion and the RAS one;
+  \item $t_{RP}$ (RAS Precharge time) is defined as the delay between the RAS assertion and the next command;
+  \item $t_{RAS}$ (Active to Precharge Delay) is defined as the delay between the row assertion and the following precharge command;
+\end{itemize}
 
 \section{Interesting cases}
+The time needed by the previously described access modes can be computed differently depending on the word that is being accessed.
+This time mainly depends on the address of the previously accessed word, that can lay on the same row or in a different one.
+
+% TODO -- fill this table
+\begin{table}[H]
+\centering
+\begin{tabular}{| c | c | c | c |}\hline
+                & no row & right row & wrong row \\ \hline
+  simple access & & & \\ \hline
+  fast access & & & \\ \hline
+\end{tabular}
+\caption{interesting cases delays}
+\end{table}
+
+\begin{itemize}
 % accessing a bit from a DRAM with the right row open (CL)
 % accessing a bit from a DRAM without an active row (t_RCD + t_CL)
 % accessing a bit from a DRAM with the wrong row open (t_RP + t_RCD + t_CL)
+\end{itemize}
 
 \section{Test}
 % test
+% test with subsequent addresses
+% test with random addresses
 
 \section{Transfer speed}
 Since this is a \emph{single data rate} memory, in short SDR, it is theoretically possible to read or write data from/to the memory once for every rising edge of the bus clock.
@@ -419,7 +441,9 @@ $ B_{w} $ & bit & bus width \\ \hline
 \end{table}
 \egroup
 
-\section{EOF}
-This is the End of File.
+\section{Conclusion}
+% as we have seen using our test «benchmarks» the two different access modes for sequential read/write the fast page mode access is better
+% «strategic»
+% «negligible»
 
 \end{document}
