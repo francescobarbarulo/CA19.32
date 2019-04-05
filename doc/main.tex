@@ -167,7 +167,6 @@ class Bus {
         Bus();
         bool set(bus_status *s);
         bool get(bus_status *s);
-        void print_status();
 };
 \end{verbatim}
 
@@ -261,7 +260,7 @@ A bit at the cross of the two dashed wires has been highlighted to help understa
 
   % input/output line
   \draw[->] (15, 8.5)--(15, 7);
-  \node at (15, 7.5){data};
+  \node[right] at (15, 7.5){data};
 
   % example bit
   \draw[dashed] (10, 12)--(20, 12);
@@ -283,7 +282,7 @@ A bit at the cross of the two dashed wires has been highlighted to help understa
   \item a column multiplexer: the column multiplexer is controlled by the 8 least significant bits of the address, and is used to select one of the $2^{8} = 256$ columns of the matrix;
 \end{itemize}
 
-\memoryname{} DRAM is compatible with a real world DRAM, and is even simpler, since current memories have up to 64~bit wide buses and up to 8~K rows and columns.
+\memoryname{} is compatible with a real world DRAM, and is even simpler, since current memories have up to 64~bit wide buses and up to 8~K rows and columns.
 \\
 However, note that the above figure does not exactly represent a real DRAM, since some parts of the circuit, like the sense amplifier, have not been drawn because they are not relevant in our discussion.
 
@@ -322,7 +321,7 @@ This timing diagram represents the simplest memory cicle that can be used to rea
 {\textoverline{ras}}  & H H L L L      L L L L H H\\
 {\textoverline{cas}}  & H H H H L      L L H H H H\\
 {r/\textoverline{w}}  & H H H H H      4H 2H\\
-{address}             & U 5D{address}  5U \\
+{addr}                & U 5D{address}  5U \\
 {data}                & U 4U           4D{data} 2U\\
 \end{tikztimingtable}
 \caption{simple read}
@@ -335,7 +334,7 @@ This timing diagram represents the simplest memory cicle that can be used to rea
 {\textoverline{ras}}  & H H L L L      L L L L H H\\
 {\textoverline{cas}}  & H H H H L      L L H H H H\\
 {r/\textoverline{w}}  & H H L L L      L H 4H\\
-{address}             & U 5D{address}  5U \\
+{addr}                & U 5D{address}  5U \\
 {data}                & U 4U           4D{data} 2U\\
 \end{tikztimingtable}
 \caption{simple write}
@@ -353,7 +352,6 @@ More in details, it is not necessary to deassert the \emph{row address strobe} w
 
 Proper timing diagrams for fast page access are as the following.
 
-% it should be right, but please don't trust and re-check better
 \begin{minipage}{.45\textwidth}
 \begin{figure}[H]
 \centering
@@ -361,10 +359,23 @@ Proper timing diagrams for fast page access are as the following.
 {\textoverline{ras}}  & H H L L L      L L L L L L    L L L L L 3L 2H \\
 {\textoverline{cas}}  & H H H H L      L L H H H H    H L L L H 5H\\
 {r/\textoverline{w}}  & H H H H H      4H 2H          5H 5H\\
-{address}             & U 5D{address}  5U             5D{address}    5U \\
+{addr}                & U 5D{address}  4U             4D{address}    7U \\
 {data}                & U 4U           4D{data} 2U    U U U 4D{data} 3U\\
 \end{tikztimingtable}
 \caption{fast page read}
+\end{figure}
+\end{minipage}
+\begin{minipage}{.45\textwidth}
+\begin{figure}[H]
+\centering
+\begin{tikztimingtable}
+{\textoverline{ras}}  & H H L L L      L L L L L L    L L L L L 3L 2H \\
+{\textoverline{cas}}  & H H H H L      L L H H H H    H L L L H 5H\\
+{r/\textoverline{w}}  & H H H H L      2L 2H 2H       2H 3L 5H\\
+{addr}                & U 5D{address}  4U             4D{address}    7U \\
+{data}                & U 4U           4D{data} 2U    U U U 4D{data} 3U\\
+\end{tikztimingtable}
+\caption{fast page write}
 \end{figure}
 \end{minipage}
 % TODO -- missing fast page write cycle
