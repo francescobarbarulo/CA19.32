@@ -167,7 +167,6 @@ class Bus {
         Bus();
         bool set(bus_status *s);
         bool get(bus_status *s);
-        void print_status();
 };
 \end{verbatim}
 
@@ -261,7 +260,7 @@ A bit at the cross of the two dashed wires has been highlighted to help understa
 
   % input/output line
   \draw[->] (15, 8.5)--(15, 7);
-  \node at (15, 7.5){data};
+  \node[right] at (15, 7.5){data};
 
   % example bit
   \draw[dashed] (10, 12)--(20, 12);
@@ -283,7 +282,7 @@ A bit at the cross of the two dashed wires has been highlighted to help understa
   \item a column multiplexer: the column multiplexer is controlled by the 8 least significant bits of the address, and is used to select one of the $2^{8} = 256$ columns of the matrix;
 \end{itemize}
 
-\memoryname{} DRAM is compatible with a real world DRAM, and is even simpler, since current memories have up to 64~bit wide buses and up to 8~K rows and columns.
+\memoryname{} is compatible with a real world DRAM, and is even simpler, since current memories have up to 64~bit wide buses and up to 8~K rows and columns.
 \\
 However, note that the above figure does not exactly represent a real DRAM, since some parts of the circuit, like the sense amplifier, have not been drawn because they are not relevant in our discussion.
 
