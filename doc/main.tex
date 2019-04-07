@@ -74,6 +74,75 @@
 \newcommand*{\textoverline}[1]{$\overline{\hbox{#1}}\m@th$}
 \makeatother
 
+% C highlight
+\usepackage{listings}
+\definecolor{customGreen}{RGB}{104,180,104}
+\definecolor{customBlue}{RGB}{49,49,255}
+\definecolor{customRed}{RGB}{150,0,0}
+\lstdefinestyle{castyle} {
+  language=C,
+  breaklines = true,
+  showstringspaces = false,
+  basicstyle = \ttfamily,
+  tabsize = 2,
+	keywordstyle=\color{customBlue},
+	identifierstyle=\color{black},
+	commentstyle=\color{customGreen},
+}
+\lstset {
+	basicstyle=\footnotesize\ttfamily,
+	numbers=left,
+	numbersep=5pt,
+	numberstyle=\tiny,
+	stepnumber=1,
+	firstnumber=1,
+	tabsize=2,
+	numberfirstline=true,
+	basicstyle=\footnotesize\ttfamily,
+	mathescape,
+	extendedchars=true,
+	breaklines=true,
+	captionpos=b,
+	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}},
+	literate= % every possible kind of accent
+	{à}{{\`a}}1
+	{á}{{\'a}}1
+	{í}{{\'i}}1
+	{é}{{\'e}}1
+	{è}{{\`e}}1
+	{ý}{{\'y}}1
+	{ì}{{\`i}}1
+	{ú}{{\'u}}1
+	{ù}{{\`u}}1
+	{ó}{{\'o}}1
+	{ò}{{\`o}}1
+	{ě}{{\v{e}}}1
+	{š}{{\v{s}}}1
+	{č}{{\v{c}}}1
+	{ř}{{\v{r}}}1
+	{ž}{{\v{z}}}1
+	{ď}{{\v{d}}}1
+	{ť}{{\v{t}}}1
+	{ň}{{\v{n}}}1
+	{ů}{{\r{u}}}1
+	{Á}{{\'A}}1
+	{Í}{{\'I}}1
+	{É}{{\'E}}1
+	{Ý}{{\'Y}}1
+	{Ú}{{\'U}}1
+	{Ó}{{\'O}}1
+	{Ě}{{\v{E}}}1
+	{Š}{{\v{S}}}1
+	{Č}{{\v{C}}}1
+	{Ř}{{\v{R}}}1
+	{Ž}{{\v{Z}}}1
+	{Ď}{{\v{D}}}1
+	{Ť}{{\v{T}}}1
+	{Ň}{{\v{N}}}1
+	{Ů}{{\r{U}}}1
+	{°}{\textdegree}1
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Specific commands for this document
 \newcommand{\computername}{CA~19.32}
@@ -146,29 +215,9 @@ Physical main bus of \computername{} presents the following wires.
   \item \textbf{data:} is 32~wires wide and holds the actual data that must be read or written;
 \end{itemize}
 
-Thus, main computer bus can be represented in the simulation software by means of the following structures:
+Thus, main computer bus can be represented in the simulation software by means of the following structure:
 
-\begin{verbatim}
-enum request_t { READ, WRITE };
-
-struct bus_status {
-    request_t request;
-    uint16_t address;
-    uint32_t data;
-};
-
-class Bus {
-    private:
-        bool busy;
-        request_t request;
-        uint16_t address;
-        uint32_t data;
-    public:
-        Bus();
-        bool set(bus_status *s);
-        bool get(bus_status *s);
-};
-\end{verbatim}
+\lstinputlisting[style=castyle,caption=Bus structure declaration]{../src/bus/bus.h}
 
 Please note that the address line is 16~bit wide, but only 14 of them are actually used, since \memoryname{} holds only $2^{14} = 16K$ memory locations.
 In particular, the 2 least significant bits are always assumed to be 0.
@@ -204,14 +253,6 @@ But since it is not necessary to perfectly reproduce the hardware behavior, and 
 
 Note: since simulation is sequential and modules are always notified in the same order, concurrency is not actually modeled, and some modules can suffer from starvation.
 
-% thus, a proper read/write operation can be represented in time like the following timing diagram:
-% busy
-% mr
-% mw
-% address
-% data
-% (be careful and remember to represent both the read and the write operation examples)
-
 \section{DRAM Internals}
 \subsection{Circuit}
 A common DRAM memory is internally organized like the following circuit.
@@ -223,7 +264,6 @@ A bit at the cross of the two dashed wires has been highlighted to help understa
 \begin{tikzpicture}
   % matrix square
   \foreach \x in {3,...,0}
-    %~ \draw[line width=0.25mm] (10 + \x/2, 10 + \x/2)--(20 + \x/2, 10 + \x/2)--(20 + \x/2, 20 + \x/2)--(10 + \x/2, 20 + \x/2)--(10 + \x/2, 10 + \x/2);
     \draw[fill=white, line width=0.25mm] (10 + \x/2, 10 + \x/2) rectangle (20 + \x/2, 20 + \x/2);
   % matrix lines
   \foreach \x in {1,...,19}
@@ -409,6 +449,7 @@ This time mainly depends on the address of the previously accessed word, that ca
 \end{table}
 
 \begin{itemize}
+  \item TODO
 % accessing a bit from a DRAM with the right row open (CL)
 % accessing a bit from a DRAM without an active row (t_RCD + t_CL)
 % accessing a bit from a DRAM with the wrong row open (t_RP + t_RCD + t_CL)
