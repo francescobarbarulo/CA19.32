@@ -148,6 +148,10 @@
 \newcommand{\computername}{CA~19.32}
 \newcommand{\memoryname}{Elephant}
 
+% Monospace math environment
+\everymath{\mathtt{\xdef\tmp{\fam\the\fam\relax}\aftergroup\tmp}} % inline math
+\everydisplay{\mathtt{\xdef\tmp{\fam\the\fam\relax}\aftergroup\tmp}} % display math
+
 % Title
 \title{\memoryname{} DRAM}
 
@@ -434,26 +438,24 @@ Analizing previous timing diagrams, these intervals can be observed:
 \end{itemize}
 
 \section{Interesting cases}
-The time needed by the previously described access modes can be computed differently depending on the word that is being accessed.
-This time mainly depends on the address of the previously accessed word, that can lay on the same row or in a different one.
+The time needed by the previously described access modes can be computed differently depending on the word that is being accessed and the access mode.
+This time mainly depends on the address of the last word accessed, that can lay on the same row or in a different one.
 
-% TODO -- fill this table
 \begin{table}[H]
 \centering
+\bgroup
+\def\arraystretch{1.5}  % add some padding
 \begin{tabular}{| c | c | c | c |}\hline
-                & no row & right row & wrong row \\ \hline
-  simple access & & & \\ \hline
-  fast access & & & \\ \hline
+                & first access & same row & different row \\ \hline
+  simple access & $t_{RCD} + t_{CL} $ & $t_{RCD} + t_{CL}$ & $t_{RCD} + t_{CL}$\\ \hline
+  fast access & $t_{RCD} + t_{CL}$ & $t_{CL}$ & $t_{RP} + t_{RCD} + t_{CL}$ \\ \hline
 \end{tabular}
+\egroup
 \caption{interesting cases delays}
 \end{table}
-
-\begin{itemize}
-  \item TODO
 % accessing a bit from a DRAM with the right row open (CL)
 % accessing a bit from a DRAM without an active row (t_RCD + t_CL)
 % accessing a bit from a DRAM with the wrong row open (t_RP + t_RCD + t_CL)
-\end{itemize}
 
 \section{Test}
 % test
