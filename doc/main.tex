@@ -74,10 +74,83 @@
 \newcommand*{\textoverline}[1]{$\overline{\hbox{#1}}\m@th$}
 \makeatother
 
+% C highlight
+\usepackage{listings}
+\definecolor{customGreen}{RGB}{104,180,104}
+\definecolor{customBlue}{RGB}{49,49,255}
+\definecolor{customRed}{RGB}{150,0,0}
+\lstdefinestyle{castyle} {
+  language=C,
+  breaklines = true,
+  showstringspaces = false,
+  basicstyle = \ttfamily,
+  tabsize = 2,
+	keywordstyle=\color{customBlue},
+	identifierstyle=\color{black},
+	commentstyle=\color{customGreen},
+}
+\lstset {
+	basicstyle=\footnotesize\ttfamily,
+	numbers=left,
+	numbersep=5pt,
+	numberstyle=\tiny,
+	stepnumber=1,
+	firstnumber=1,
+	tabsize=2,
+	numberfirstline=true,
+	basicstyle=\footnotesize\ttfamily,
+	mathescape,
+	extendedchars=true,
+	breaklines=true,
+	captionpos=b,
+	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}},
+	literate= % every possible kind of accent
+	{à}{{\`a}}1
+	{á}{{\'a}}1
+	{í}{{\'i}}1
+	{é}{{\'e}}1
+	{è}{{\`e}}1
+	{ý}{{\'y}}1
+	{ì}{{\`i}}1
+	{ú}{{\'u}}1
+	{ù}{{\`u}}1
+	{ó}{{\'o}}1
+	{ò}{{\`o}}1
+	{ě}{{\v{e}}}1
+	{š}{{\v{s}}}1
+	{č}{{\v{c}}}1
+	{ř}{{\v{r}}}1
+	{ž}{{\v{z}}}1
+	{ď}{{\v{d}}}1
+	{ť}{{\v{t}}}1
+	{ň}{{\v{n}}}1
+	{ů}{{\r{u}}}1
+	{Á}{{\'A}}1
+	{Í}{{\'I}}1
+	{É}{{\'E}}1
+	{Ý}{{\'Y}}1
+	{Ú}{{\'U}}1
+	{Ó}{{\'O}}1
+	{Ě}{{\v{E}}}1
+	{Š}{{\v{S}}}1
+	{Č}{{\v{C}}}1
+	{Ř}{{\v{R}}}1
+	{Ž}{{\v{Z}}}1
+	{Ď}{{\v{D}}}1
+	{Ť}{{\v{T}}}1
+	{Ň}{{\v{N}}}1
+	{Ů}{{\r{U}}}1
+	{°}{\textdegree}1
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Specific commands for this document
 \newcommand{\computername}{CA~19.32}
 \newcommand{\memoryname}{Elephant}
+
+% Monospace math environment
+\everymath{\mathtt{\xdef\tmp{\fam\the\fam\relax}\aftergroup\tmp}} % inline math
+\everydisplay{\mathtt{\xdef\tmp{\fam\the\fam\relax}\aftergroup\tmp}} % display math
 
 % Title
 \title{\memoryname{} DRAM}
@@ -146,29 +219,9 @@ Physical main bus of \computername{} presents the following wires.
   \item \textbf{data:} is 32~wires wide and holds the actual data that must be read or written;
 \end{itemize}
 
-Thus, main computer bus can be represented in the simulation software by means of the following structures:
+Thus, main computer bus can be represented in the simulation software by means of the following structure:
 
-\begin{verbatim}
-enum request_t { READ, WRITE };
-
-struct bus_status {
-    request_t request;
-    uint16_t address;
-    uint32_t data;
-};
-
-class Bus {
-    private:
-        bool busy;
-        request_t request;
-        uint16_t address;
-        uint32_t data;
-    public:
-        Bus();
-        bool set(bus_status *s);
-        bool get(bus_status *s);
-};
-\end{verbatim}
+\lstinputlisting[style=castyle,caption=Bus structure declaration]{../src/bus/bus.h}
 
 Please note that the address line is 16~bit wide, but only 14 of them are actually used, since \memoryname{} holds only $2^{14} = 16K$ memory locations.
 In particular, the 2 least significant bits are always assumed to be 0.
@@ -204,14 +257,6 @@ But since it is not necessary to perfectly reproduce the hardware behavior, and 
 
 Note: since simulation is sequential and modules are always notified in the same order, concurrency is not actually modeled, and some modules can suffer from starvation.
 
-% thus, a proper read/write operation can be represented in time like the following timing diagram:
-% busy
-% mr
-% mw
-% address
-% data
-% (be careful and remember to represent both the read and the write operation examples)
-
 \section{DRAM Internals}
 \subsection{Circuit}
 A common DRAM memory is internally organized like the following circuit.
@@ -223,7 +268,6 @@ A bit at the cross of the two dashed wires has been highlighted to help understa
 \begin{tikzpicture}
   % matrix square
   \foreach \x in {3,...,0}
-    %~ \draw[line width=0.25mm] (10 + \x/2, 10 + \x/2)--(20 + \x/2, 10 + \x/2)--(20 + \x/2, 20 + \x/2)--(10 + \x/2, 20 + \x/2)--(10 + \x/2, 10 + \x/2);
     \draw[fill=white, line width=0.25mm] (10 + \x/2, 10 + \x/2) rectangle (20 + \x/2, 20 + \x/2);
   % matrix lines
   \foreach \x in {1,...,19}
@@ -274,7 +318,7 @@ A bit at the cross of the two dashed wires has been highlighted to help understa
 
 \memoryname{} is a DRAM actually made by:
 \begin{itemize}
-  \item 32 matrixes: matrix \emph{n} holds the corresponding \emph{n}-th bit of the word connected to the bus;
+  \item 32 matrices: matrix \emph{n} holds the corresponding \emph{n}-th bit of the word connected to the bus;
   each matrix consists of $64 \times 256$ cells;
   each cell holds one bit;
   for practicity, in the above figure, only 4 matrixes have been drawn;
@@ -299,12 +343,6 @@ To control and actually read and write a DRAM, the following control lines are u
   \item \textbf{address}: the \emph{address} line holds the memory address of the cell;
   \item \textbf{data}: the \emph{data} line holds the data read or written from/to the cell;
 \end{itemize}
-% all I/O lines and their description:
-% /ras
-% /cas
-% Address
-% R/W
-% data
 
 Reading and writing data in the matrix requires strict timing constraints to allow capacitors, sense amplifier and all the electronics to work properly.
 Different timings can be used, as explained in the following section.
@@ -314,6 +352,8 @@ Different timings can be used, as explained in the following section.
 \subsection{Simple access}
 This timing diagram represents the simplest memory cicle that can be used to read and write data in memory.
 
+\begin{minipage}{\textwidth}
+\centering
 \begin{minipage}{.45\textwidth}
 \begin{figure}[H]
 \centering
@@ -340,6 +380,7 @@ This timing diagram represents the simplest memory cicle that can be used to rea
 \caption{simple write}
 \end{figure}
 \end{minipage}
+\end{minipage}
 
 \subsection{Fast page access}
 When accessing data it is possibile to take advantage of the principle of locality.
@@ -351,7 +392,10 @@ To take advantage of both the spatial and the temporal locality of programs, it 
 More in details, it is not necessary to deassert the \emph{row address strobe} when memory locations are accessed sequentially and row number does not change.
 
 Proper timing diagrams for fast page access are as the following.
-
+\\
+\\
+\begin{minipage}{\linewidth}
+\centering
 \begin{minipage}{.45\textwidth}
 \begin{figure}[H]
 \centering
@@ -378,24 +422,45 @@ Proper timing diagrams for fast page access are as the following.
 \caption{fast page write}
 \end{figure}
 \end{minipage}
-% TODO -- missing fast page write cycle
+\end{minipage}
+\\
+\\
+\\
+Please note that the first valid address transmitted needs more time to stabilize because it contains both a new row and column address, while subsequent ones need only the time to stabilize the least significant part which represents the column address.
 
-
-\section{Timings definition}
-% t_CL  CAS latency
-% t_RCD row address to column address delay
-% t_RP  row precharge time
-% t_RAS number of clock cycles to refresh a row
-
-% and their description
+\section{Delay definition}
+Analizing previous timing diagrams, these intervals can be observed:
+\begin{itemize}
+  \item $t_{CL}$ (CAS latency) is defined as the interval between the moment memory controller asserts the \emph{\textoverline{cas}} command and the moment when data is available on memory's output pins;
+  \item $t_{RCD}$ (RAS to CAS Delay time) is defined as the delay interval between the CAS assertion and the RAS one;
+  \item $t_{RP}$ (RAS Precharge time) is defined as the delay between the RAS assertion and the next command;
+  \item $t_{RAS}$ (Active to Precharge Delay) is defined as the delay between the row assertion and the following precharge command;
+\end{itemize}
 
 \section{Interesting cases}
+The time needed by the previously described access modes can be computed differently depending on the word that is being accessed and the access mode.
+This time mainly depends on the address of the last word accessed, that can lay on the same row or in a different one.
+
+\begin{table}[H]
+\centering
+\bgroup
+\def\arraystretch{1.5}  % add some padding
+\begin{tabular}{| c | c | c | c |}\hline
+                & first access & same row & different row \\ \hline
+  simple access & $t_{RCD} + t_{CL} $ & $t_{RCD} + t_{CL}$ & $t_{RCD} + t_{CL}$\\ \hline
+  fast access & $t_{RCD} + t_{CL}$ & $t_{CL}$ & $t_{RP} + t_{RCD} + t_{CL}$ \\ \hline
+\end{tabular}
+\egroup
+\caption{interesting cases delays}
+\end{table}
 % accessing a bit from a DRAM with the right row open (CL)
 % accessing a bit from a DRAM without an active row (t_RCD + t_CL)
 % accessing a bit from a DRAM with the wrong row open (t_RP + t_RCD + t_CL)
 
 \section{Test}
 % test
+% test with subsequent addresses
+% test with random addresses
 
 \section{Transfer speed}
 Since this is a \emph{single data rate} memory, in short SDR, it is theoretically possible to read or write data from/to the memory once for every rising edge of the bus clock.
@@ -419,7 +484,9 @@ $ B_{w} $ & bit & bus width \\ \hline
 \end{table}
 \egroup
 
-\section{EOF}
-This is the End of File.
+\section{Conclusion}
+% as we have seen using our test «benchmarks» the two different access modes for sequential read/write the fast page mode access is better
+% «strategic»
+% «negligible»
 
 \end{document}
