@@ -1,5 +1,8 @@
 #include <iostream>
-#include "../event/module.h"
+#include <cstring>
+#include "../orchestrator/module.h"
+#include "../orchestrator/structures.h"
+#include "../bus/bus.h"
 
 using namespace std;
 
@@ -21,18 +24,16 @@ class Memory : public module {
         // simulation params
         ModeType mode;
         // dram
-        uint32_t dram[];
+        uint32_t *dram;
         bool first_read;
         uint16_t last_row_selected;
-        char src_module[10];
         // bus interaction
         Bus *bus;
         bus_status bus_status;
     public:
-        Memory();
-        Memory(ModeType, Bus*) : Memory();
-        virtual event* notify(message*);
-        void handleMessage(message*);
+        Memory(string, int priority = 0);
+        Memory(string, int, ModeType, Bus*);
+        void onNotify(message*);
         bool isSelfMessage(message*);
 };
 

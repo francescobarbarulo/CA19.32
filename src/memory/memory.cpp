@@ -1,57 +1,60 @@
 #include "memory.h"
 
-Memory::Memory(){
+Memory::Memory(string name, int priority) : module(name, priority){
     dram = new uint32_t[DRAM_SIZE];
     first_read = true;
 }
 
-Memory::Memory(ModeType mode, Bus *bus){
+Memory::Memory(string name, int priority, ModeType mode, Bus *bus) {
     this.mode = mode;
     this.bus = bus;
 }
 
-bool Memory::isSelfMessage(message *msg){
-    return (strcmp(msg->source, msg->dest) == 0);
+bool Memory::isSelfMessage(message* m){
+    return (m->source == getName());
 }
 
 // it should be the method called upon the message receiving?
-void Memory::handleMessage(message *msg){
-    if (isSelfMessage(msg)){
+void Memory::onNotify(message *msg){
+    if (msg->dest == this->getName()){
+        int dram_access_time = 10;
+        // first of all get the current bus status
+        bus->get(&this->bus_status);
+
         // it is from me after a certain memory access time
         if (bus_status.request == READ){
+            // read access
             // bus_status setup
-            bus_status.data = dram[bus_status.address];
+            int cell_address = bus_status.address >> 2;
+            bus_status.data = dram[cell_address];
             if (bus->set(&bus_status)){
-                cout << "[i] bus set successfully" << endl;
+                cout << "[I] bus set successfully" << endl;
                 // Can I delete the received message?
                 // response creation
                 message *response = new message();
-                strcpy(response->dest, src_module);
-                strcpy(response->source, msg->dest);
-                notify(response);
+                response->valid = 1;
+        		response->timestamp = getTime();
+        		strcpy(response->source, getName().c_str());
+        		strcpy(response->dest, msg->source);
+        		response->magic_struct = 0;
+
+                /* compute the access time
+                if (mode == DEFAULT){
+                    dram_access_time = defaultBehavior(); // CL+RCD+RP
+                } else {
+                    dram_access_time = fastBehavior(); // it depends
+                }*/
+
+                sendWithDelay(response, dram_access_time);
+
+
             } else {
                 // !! what to do ?!?!
-                cout << "[i] error on bus setting" << endl;
+                cout << "[E] error on bus setting" << endl;
             }
         } else {
+            // write access
             dram[bus_status.address] = bus_status.data;
         }
-    } else {
-        int dram_access_time = 0;
-        // it is from someone and I save the source for the read request response
-        strcpy(src_module, msg->source);
-        // get current bus status
-        bus->get(&bus_status);
-
-        if (mode == DEFAULT){
-            dram_access_time = defaultBehavior(); // CL+RCD+RP
-        } else {
-            dram_access_time = fastBehavior(); // it depends
-        }
-        // set memory as beep->source
-        message *beep = new message();
-        strcpy(beep->source, msg->dest);
-        beep->timestamp = dram_access_time;
-        notify(beep);
     }
 }
