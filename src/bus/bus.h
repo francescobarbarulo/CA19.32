@@ -4,7 +4,7 @@
 
 using namespace std;
 
-enum request_t {READ, WRITE};
+enum request_t {READ, WRITE, UNDEFINED};
 
 struct Bus_status {
     request_t request;

@@ -1,6 +1,7 @@
 #include "bus.h"
 
 Bus::Bus(){
+    request = UNDEFINED;
     busy = false;
 }
 
@@ -44,8 +45,10 @@ bool Bus::get(Bus_status *s){
 ostream& operator<<(ostream& os, const Bus& b){
     if (b.request == READ)
         os << "/mr\t0\n/mw\t1\n";
-    else
+    else if (b.request == WRITE)
         os << "/mr\t1\n/mw\t0\n";
+    else
+        os << "/mr\t1\n/mw\t1\n";
     os << "a15_a0\t0x" << setfill ('0') << setw(4) << hex << b.address << endl;
     os << "d31_d0\t0x" << setfill ('0') << setw(8) << hex << b.data << endl;
 
