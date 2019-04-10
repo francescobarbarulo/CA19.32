@@ -10,7 +10,7 @@ int main() {
 	//Initialize the system here by adding modules to the system object
 	system.addModule(new ExampleModule("Alice"));
 	system.addModule(new ExampleModule("Bob", 10));//The second parameter is the priority. It's useful only when you need to intercept someone's else message
-	system.addModule(new Memory("MEM"));
+	system.addModule(new Memory("MEM", 0));
 	//Call run() to start the simulation
 	system.run();
 }

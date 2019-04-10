@@ -6,7 +6,7 @@ using namespace std;
 
 enum request_t {READ, WRITE};
 
-struct bus_status {
+struct Bus_status {
     request_t request;
     uint16_t address;
     uint32_t data;
@@ -24,7 +24,7 @@ class Bus {
     public:
         Bus();
         //static Bus *getInstance();
-        bool set(bus_status*); // return true if the bus is idle
-        bool get(bus_status*);
+        bool set(Bus_status*); // return true if the bus is idle
+        bool get(Bus_status*);
         friend ostream& operator<<(ostream&, const Bus&);
 };

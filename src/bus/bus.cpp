@@ -13,7 +13,7 @@ Bus* Bus::getInstance(){
 }
 */
 
-bool Bus::set(bus_status *s){
+bool Bus::set(Bus_status *s){
     if (busy){
         // It is not possible to change bus status while components are accessing to it
         return false;
@@ -27,7 +27,7 @@ bool Bus::set(bus_status *s){
     return true;
 }
 
-bool Bus::get(bus_status *s){
+bool Bus::get(Bus_status *s){
     if (!busy){
         // the bus status is meaningless
         return false;

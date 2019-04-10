@@ -20,6 +20,7 @@ enum ModeType {
 };
 
 class Memory : public module {
+    using module::module;
     private:
         // simulation params
         ModeType mode;
@@ -29,10 +30,10 @@ class Memory : public module {
         uint16_t last_row_selected;
         // bus interaction
         Bus *bus;
-        bus_status bus_status;
+        Bus_status bus_status;
     public:
-        Memory(string, int priority = 0);
-        Memory(string, int, ModeType, Bus*);
+        Memory(string, int);
+        //Memory(string, int, ModeType, Bus*);
         void onNotify(message*);
         bool isSelfMessage(message*);
 };

@@ -4,11 +4,11 @@ Memory::Memory(string name, int priority) : module(name, priority){
     dram = new uint32_t[DRAM_SIZE];
     first_read = true;
 }
-
+/*
 Memory::Memory(string name, int priority, ModeType mode, Bus *bus) {
     this.mode = mode;
     this.bus = bus;
-}
+}*/
 
 bool Memory::isSelfMessage(message* m){
     return (m->source == getName());
