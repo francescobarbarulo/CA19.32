@@ -17,6 +17,7 @@ Bus* Bus::getInstance(){
 bool Bus::set(Bus_status *s){
     if (busy){
         // It is not possible to change bus status while components are accessing to it
+        cout << "[BUS] trying to set before getting the status" << endl;
         return false;
     }
 
@@ -31,6 +32,7 @@ bool Bus::set(Bus_status *s){
 bool Bus::get(Bus_status *s){
     if (!busy){
         // the bus status is meaningless
+        cout << "[BUS] trying to get before setting the status" << endl;
         return false;
     }
 
@@ -51,6 +53,10 @@ ostream& operator<<(ostream& os, const Bus& b){
         os << "/mr\t1\n/mw\t1\n";
     os << "a15_a0\t0x" << setfill ('0') << setw(4) << hex << b.address << endl;
     os << "d31_d0\t0x" << setfill ('0') << setw(8) << hex << b.data << endl;
+
+    if (b.busy) os << "BUSY";
+    else os << "IDLE";
+    os << endl;
 
     return os;
 }

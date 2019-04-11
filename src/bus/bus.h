@@ -1,3 +1,6 @@
+#ifndef BUS_H
+#define BUS_H
+
 #include <cstdint>
 #include <iostream>
 #include <iomanip>
@@ -28,3 +31,5 @@ class Bus {
         bool get(Bus_status*);
         friend ostream& operator<<(ostream&, const Bus&);
 };
+
+#endif
