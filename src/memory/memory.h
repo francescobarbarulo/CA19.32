@@ -1,5 +1,9 @@
+#ifndef MEMORY_H
+#define MEMORY_H
+
 #include <iostream>
 #include <cstring>
+#include <unistd.h>
 #include "../orchestrator/module.h"
 #include "../orchestrator/structures.h"
 #include "../bus/bus.h"
@@ -19,11 +23,14 @@ enum ModeType {
     DEFAULT, FAST
 };
 
+// sim params definition
+#define MODE DEFAULT
+
 class Memory : public module {
     using module::module;
     private:
         // simulation params
-        ModeType mode;
+        ModeType mode = MODE;
         // dram
         uint32_t *dram;
         bool first_read;
@@ -32,12 +39,15 @@ class Memory : public module {
         Bus *bus;
         Bus_status bus_status;
     public:
-        Memory(string, int);
-        //Memory(string, int, ModeType, Bus*);
+        Memory(string, int, Bus*);
         void onNotify(message*);
-        bool isSelfMessage(message*);
+        message* createMessage(string);
+        int defaultBehavior();
+        int optimizedBehavior();
 };
 
 /* TODO */
 /* timer ram refresh
 */
+
+#endif

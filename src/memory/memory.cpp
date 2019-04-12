@@ -1,60 +1,73 @@
 #include "memory.h"
 
-Memory::Memory(string name, int priority) : module(name, priority){
+Memory::Memory(string name, int priority, Bus *bus) : module(name, priority) {
     dram = new uint32_t[DRAM_SIZE];
     first_read = true;
-}
-/*
-Memory::Memory(string name, int priority, ModeType mode, Bus *bus) {
-    this.mode = mode;
-    this.bus = bus;
-}*/
-
-bool Memory::isSelfMessage(message* m){
-    return (m->source == getName());
+    this->bus = bus;
 }
 
-// it should be the method called upon the message receiving?
+int Memory::defaultBehavior(){
+    return CL + RCD + RP;
+}
+
+int Memory::optimizedBehavior(){
+    return 0;
+}
+
 void Memory::onNotify(message *msg){
-    if (msg->dest == this->getName()){
-        int dram_access_time = 10;
+    if ( msg->dest == this->getName() ){
+        int dram_access_time = 0;
         // first of all get the current bus status
-        bus->get(&this->bus_status);
+        if ( !bus->get(&bus_status) ){
+            cout << "[" << getName() << "] Fail accessing the bus" << endl;
+            return;
+        }
 
-        // it is from me after a certain memory access time
-        if (bus_status.request == READ){
+        uint16_t cell_address = bus_status.address >> 2;
+
+        if ( bus_status.request == READ ){
             // read access
-            // bus_status setup
-            int cell_address = bus_status.address >> 2;
-            bus_status.data = dram[cell_address];
-            if (bus->set(&bus_status)){
-                cout << "[I] bus set successfully" << endl;
-                // Can I delete the received message?
-                // response creation
-                message *response = new message();
-                response->valid = 1;
-        		response->timestamp = getTime();
-        		strcpy(response->source, getName().c_str());
-        		strcpy(response->dest, msg->source);
-        		response->magic_struct = 0;
+            cout << getTime() << " [" << getName() << "] Received read request at cell " << cell_address << endl;
 
-                /* compute the access time
+            bus_status.data = dram[cell_address];
+
+            if ( bus->set(&bus_status) ){
+                // compute the access time
                 if (mode == DEFAULT){
                     dram_access_time = defaultBehavior(); // CL+RCD+RP
                 } else {
-                    dram_access_time = fastBehavior(); // it depends
-                }*/
+                    dram_access_time = optimizedBehavior(); // it depends
+                }
 
+                // response msg creation
+                message *response = createMessage((string)msg->source);
                 sendWithDelay(response, dram_access_time);
+                cout << getTime() << " [" << getName() << "] message sent to " << msg->source << endl;
 
+                // from now on there will be normal reads
+                if (first_read) { first_read = !first_read; }
 
             } else {
                 // !! what to do ?!?!
-                cout << "[E] error on bus setting" << endl;
+                cout << "[" << getName() << "] Fail accessing the bus" << endl;
             }
-        } else {
+        } else if ( bus_status.request == WRITE ) {
             // write access
-            dram[bus_status.address] = bus_status.data;
+            cout << getTime() << " [" << getName() << "] Received write request at cell " << cell_address << endl;
+            dram[cell_address] = bus_status.data;
+        } else {
+            return;
         }
     }
+}
+
+message* Memory::createMessage(string dest){
+	message *msg = new message();
+	msg->valid = 1;
+	msg->timestamp = getTime();
+	strcpy(msg->source, getName().c_str());
+	strcpy(msg->dest, dest.c_str());
+	msg->magic_struct = NULL;
+
+	return msg;
 }
