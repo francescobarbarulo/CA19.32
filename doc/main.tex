@@ -246,16 +246,16 @@ Actions on bus must be performed in the simulation using the following protocol.
   \begin{itemize}
     \item if busy bit is~1, data is not actually written onto the bus, \texttt{set()} method returns \texttt{false} and module must wait and schedule data writes onto the bus at a later time (eg. next clock tick);
     \item if busy bit is~0, data is actually written onto the bus and \texttt{set()} method returns \texttt{true}.
-    Once written data to bus, destination module must be notified of the bus change by sending it a message using methods provided by the orchestrator.
-    For the sake of simplicity, message passed through the orchestrator can be tought as a model for the hardware \emph{enable} wire;
+    Once written data to bus, destination module must be notified of the bus change by sending it a message using methods provided by the orchestrator.\\
+    For the sake of simplicity, messages passed through the orchestrator can be tought as a model for the hardware \emph{enable} wire; thus, \texttt{magic\_struct} pointer of these messages is ignored by the receiver and it is suggested to set it to \texttt{NULL};
   \end{itemize}
 \end{itemize}
 
 Please note that this does not model the actual hardware behavior, since a reading module can not clear a set bit on the bus;
 moreover, this get/set protocol does not properly fit the event-driven programming paradigm.
-But since it is not necessary to perfectly reproduce the hardware behavior, and since a perfectly event driven protocol introduces unnecessary complications, this handshake has been chosen in order to simplify the simulation software.
+But since it is not necessary to perfectly reproduce the hardware behavior, and since a perfectly event driven protocol introduces unnecessary complications, this handshake has been chosen in order to simplify the simulation software.\\
 
-Note: since simulation is sequential and modules are always notified in the same order, concurrency is not actually modeled, and some modules can suffer from starvation.
+Please also note that since simulation is sequential and modules are always notified in the same order, concurrency is not actually modeled, and some modules can suffer from starvation.
 
 \section{DRAM Internals}
 \subsection{Circuit}
