@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 #include "module.h"
 #include "structures.h"
@@ -21,6 +22,6 @@ public:
 	void onNotify(message*);
 	message* createMessage(string);
 	bool isSelfMessage(message*);
-	bool write_request();
-	bool read_request();
+	bool write_request(bool);
+	bool read_request(bool);
 };

@@ -19,12 +19,14 @@ using namespace std;
 #define RP  8
 #define RAS 24
 
+#define REFRESH_INTERVAL 20
+
 enum ModeType {
     DEFAULT, FAST
 };
 
 // sim params definition
-#define MODE DEFAULT
+#define MODE FAST
 
 class Memory : public module {
     using module::module;
@@ -33,8 +35,9 @@ class Memory : public module {
         ModeType mode = MODE;
         // dram
         uint32_t *dram;
-        bool first_read;
-        uint16_t last_row_selected;
+        bool first_access;
+        uint16_t last_row_addressed;
+        bool refreshing_phase;
         // bus interaction
         Bus *bus;
         Bus_status bus_status;
@@ -42,12 +45,12 @@ class Memory : public module {
         Memory(string, int, Bus*);
         void onNotify(message*);
         message* createMessage(string);
+        bool isSelfMessage(message*);
         int defaultBehavior();
-        int optimizedBehavior();
+        int optimizedBehavior(uint16_t);
+        // refreshin phase
+        void startRefresh();
+        void endRefresh();
 };
-
-/* TODO */
-/* timer ram refresh
-*/
 
 #endif
