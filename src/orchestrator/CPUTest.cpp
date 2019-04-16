@@ -21,21 +21,19 @@ bool CPUTest::isSelfMessage(message *m){
 	return (m->source == getName());
 }
 
-bool CPUTest::write_request(bool new_request){
+bool CPUTest::write_request(){
 	string dest = "MEM";
 
-	if (new_request){
-		bus_status.request = WRITE;
-		bus_status.address = test_addresses[op_counter % N_OPERATIONS];
-		bus_status.data = test_addresses[op_counter] + 1;
+	bus_status.request = WRITE;
+	bus_status.address = test_addresses[op_counter % N_OPERATIONS];
+	bus_status.data = test_addresses[op_counter] + 1;
 
-		if ( !bus->set(&bus_status) ){
-			cout << getTime() << " [" << getName() << "] Fail accessing the bus on write" << endl;
-			return false;
-		}
-
-		op_counter++;
+	if ( !bus->set(&bus_status) ){
+		cout << getTime() << " [" << getName() << "] Fail accessing the bus on write" << endl;
+		return false;
 	}
+
+	op_counter++;
 
 	cout << getTime() << " [" << getName() << "] Sending write request at address "<< bus_status.address << ": " << bus_status.data << endl;
 	message *request = createMessage(dest);
@@ -44,20 +42,18 @@ bool CPUTest::write_request(bool new_request){
 	return true;
 }
 
-bool CPUTest::read_request(bool new_request){
+bool CPUTest::read_request(){
 	string dest = "MEM";
 
-	if (new_request){
-		bus_status.request = READ;
-		bus_status.address = test_addresses[op_counter % N_OPERATIONS];
+	bus_status.request = READ;
+	bus_status.address = test_addresses[op_counter % N_OPERATIONS];
 
-		if ( !bus->set(&bus_status) ){
-			cout << getTime() << " [" << getName() << "] Fail accessing the bus on read" << endl;
-			return false;
-		}
-
-		op_counter++;
+	if ( !bus->set(&bus_status) ){
+		cout << getTime() << " [" << getName() << "] Fail accessing the bus on read" << endl;
+		return false;
 	}
+
+	op_counter++;
 
 	cout << getTime() << " [" << getName() << "] Sending read request at address " << bus_status.address << endl;
 	message *request = createMessage(dest);
@@ -68,19 +64,11 @@ bool CPUTest::read_request(bool new_request){
 
 void CPUTest::onNotify(message *m){
 	if (m->dest == getName()){
+		// just to update the output every second
 		sleep(1);
 
-		bool valid = true;
-
 		if (!isSelfMessage(m)){
-			valid = (getTime() != m->timestamp);
-			if (valid){
-				cout << getTime() << " [" << getName() << "] Received valid message" << endl;
-			} else {
-				cout << getTime() << " [" << getName() << "] Received invalid message" << endl;
-			}
-
-			if ( valid && bus->get(&bus_status) ){
+			if ( bus->get(&bus_status) ){
 				cout << getTime() << " [" << getName() << "] Read " << bus_status.data << endl;
 			}
 		}
@@ -88,11 +76,11 @@ void CPUTest::onNotify(message *m){
 		if (op_counter >= N_OPERATIONS * 2){ return; }
 
 		if (op_counter < N_OPERATIONS ){
-			write_request(valid);
+			write_request();
 			message *beep = createMessage(getName());
 			sendWithDelay(beep, 10);
 		} else {
-			read_request(valid);
+			read_request();
 		}
 	}
 }

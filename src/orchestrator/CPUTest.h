@@ -11,7 +11,7 @@
 
 class CPUTest : public module
 {
-	// test var
+	// test variables
 	vector<uint16_t> test_addresses;
 	unsigned int op_counter;
 
@@ -22,6 +22,6 @@ public:
 	void onNotify(message*);
 	message* createMessage(string);
 	bool isSelfMessage(message*);
-	bool write_request(bool);
-	bool read_request(bool);
+	bool write_request();
+	bool read_request();
 };
