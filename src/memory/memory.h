@@ -19,7 +19,8 @@ using namespace std;
 #define RP  8
 #define RAS 24
 
-#define REFRESH_INTERVAL 20
+#define REFRESHING_INTERVAL 30
+#define REFRESHING_TIME     (RCD << 6)
 
 enum ModeType {
     DEFAULT, FAST
@@ -37,18 +38,20 @@ class Memory : public module {
         uint32_t *dram;
         bool first_access;
         uint16_t last_row_addressed;
+        // refreshing phase
         bool refreshing_phase;
+        unsigned int refreshing_phase_started_at;
         // bus interaction
         Bus *bus;
         Bus_status bus_status;
     public:
         Memory(string, int, Bus*);
         void onNotify(message*);
-        message* createMessage(string);
+        message* createMessage(string, string);
         bool isSelfMessage(message*);
         int defaultBehavior();
         int optimizedBehavior(uint16_t);
-        // refreshin phase
+        // refreshing phase
         void startRefresh();
         void endRefresh();
 };
