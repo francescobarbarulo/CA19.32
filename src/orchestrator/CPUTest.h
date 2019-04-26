@@ -7,10 +7,16 @@
 #include "structures.h"
 #include "../bus/bus.h"
 
-#define N_OPERATIONS 5
+#define MEM_SIZE 64 * (1 << 10)
 
-class CPUTest : public module
-{
+enum AccessType {
+	SEQUENTIAL, RANDOM
+};
+// sim params
+#define N_OPERATIONS	1000
+#define ACCESS_TYPE		SEQUENTIAL
+
+class CPUTest : public module {
 	// test variables
 	vector<uint16_t> test_addresses;
 	unsigned int op_counter;

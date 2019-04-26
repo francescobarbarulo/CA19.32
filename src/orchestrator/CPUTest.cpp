@@ -6,9 +6,16 @@
 using namespace std;
 
 CPUTest::CPUTest(string name, int priority, Bus *bus) : module(name, priority) {
+	srand(7); // 7 🤴 kings of Rome
 	// init test addresses for write/read operations
-	for (int i = 0; i < N_OPERATIONS; i++){
-		test_addresses.push_back(i * 512);
+	if (ACCESS_TYPE == SEQUENTIAL){
+		for (int i = 0; i < N_OPERATIONS; i++){
+			test_addresses.push_back(i);
+		}
+	} else {
+		for (int i = 0; i < N_OPERATIONS; i++){
+			test_addresses.push_back(rand() % MEM_SIZE);
+		}
 	}
 	// init main bus
 	this->bus = bus;
@@ -37,7 +44,7 @@ bool CPUTest::write_request(){
 
 	cout << getTime() << " [" << getName() << "] Sending write request at address "<< bus_status.address << ": " << bus_status.data << endl;
 	message *request = createMessage(dest);
-	sendWithDelay(request, 10);
+	sendWithDelay(request, 1);
 
 	return true;
 }
@@ -57,7 +64,7 @@ bool CPUTest::read_request(){
 
 	cout << getTime() << " [" << getName() << "] Sending read request at address " << bus_status.address << endl;
 	message *request = createMessage(dest);
-	sendWithDelay(request, 10);
+	sendWithDelay(request, 1);
 
 	return true;
 }
@@ -65,7 +72,7 @@ bool CPUTest::read_request(){
 void CPUTest::onNotify(message *m){
 	if (m->dest == getName()){
 		// just to update the output every second
-		sleep(1);
+		//sleep(1);
 
 		if (!isSelfMessage(m)){
 			if ( bus->get(&bus_status) ){
@@ -73,12 +80,15 @@ void CPUTest::onNotify(message *m){
 			}
 		}
 
-		if (op_counter >= N_OPERATIONS * 2){ return; }
+		if (op_counter >= N_OPERATIONS * 2){
+			cout << "Shutdown" << endl;
+			exit(0);
+		}
 
 		if (op_counter < N_OPERATIONS ){
 			write_request();
 			message *beep = createMessage(getName());
-			sendWithDelay(beep, 10);
+			sendWithDelay(beep, 1);
 		} else {
 			read_request();
 		}
