@@ -2,6 +2,7 @@
 #define MEMORY_H
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <unistd.h>
 #include "../orchestrator/module.h"
@@ -20,7 +21,7 @@ using namespace std;
 #define RAS 24
 
 #define REFRESHING_INTERVAL 30
-#define REFRESHING_TIME     (RCD << 6)
+#define REFRESHING_TIME     RCD * (1 << 6) // 2^6 rows
 
 enum ModeType {
     DEFAULT, FAST
@@ -45,7 +46,7 @@ class Memory : public module {
         Bus *bus;
         Bus_status bus_status;
     public:
-        Memory(string, int, Bus*);
+        Memory(string, int, Bus*, string prog = "");
         void onNotify(message*);
         message* createMessage(string, string);
         bool isSelfMessage(message*);
