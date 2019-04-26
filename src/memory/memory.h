@@ -20,7 +20,9 @@ using namespace std;
 #define RP  8
 #define RAS 24
 
-#define REFRESHING_INTERVAL 30
+#define MS_INTERVAL         32 // [ms]
+#define FREQUENCY           32 // [KHz]
+#define REFRESHING_INTERVAL MS_INTERVAL * FREQUENCY
 #define REFRESHING_TIME     RCD * (1 << 6) // 2^6 rows
 
 enum ModeType {
@@ -28,13 +30,11 @@ enum ModeType {
 };
 
 // sim params definition
-#define MODE FAST
+#define MODE_TYPE DEFAULT
 
 class Memory : public module {
     using module::module;
     private:
-        // simulation params
-        ModeType mode = MODE;
         // dram
         uint32_t *dram;
         bool first_access;

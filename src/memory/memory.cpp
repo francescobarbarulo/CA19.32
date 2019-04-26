@@ -76,7 +76,7 @@ void Memory::endRefresh(){
 void Memory::onNotify(message *msg){
     if ( msg->dest == this->getName() ){
         // just to update the output every second
-        sleep(1);
+        //sleep(1);
 
         if (isSelfMessage(msg)){
             // for refreshing phase
@@ -108,7 +108,7 @@ void Memory::onNotify(message *msg){
 
                 if ( bus->set(&bus_status) ){
                     // compute the access time
-                    if (mode == DEFAULT){
+                    if (MODE_TYPE == DEFAULT){
                         dram_access_time = defaultBehavior();
                     } else {
                         dram_access_time = optimizedBehavior(cell_address >> 8);
