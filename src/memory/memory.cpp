@@ -1,9 +1,21 @@
 #include "memory.h"
 
-Memory::Memory(string name, int priority, Bus *bus) : module(name, priority) {
+Memory::Memory(string name, int priority, Bus *bus, string program) : module(name, priority) {
     dram = new uint32_t[DRAM_SIZE];
     first_access = true;
     this->bus = bus;
+
+    // load program
+    ifstream file;
+    file.open(program, ios::in | ios::binary | ios::ate);
+    if (file.is_open()){
+        int size = file.tellg();
+        file.seekg(0, file.beg);
+
+        file.read((char*)dram, size);
+        file.close();
+        cout << "[I] Program '" << program << "' loaded" << endl;
+    }
 
     // message for memory refresh
     message *refresh_msg = createMessage(getName(), getName());
@@ -64,8 +76,8 @@ void Memory::endRefresh(){
 void Memory::onNotify(message *msg){
     if ( msg->dest == this->getName() ){
         // just to update the output every second
-        sleep(1);
-        
+        //sleep(1);
+
         if (isSelfMessage(msg)){
             // for refreshing phase
             if (refreshing_phase){ endRefresh(); }
@@ -96,7 +108,7 @@ void Memory::onNotify(message *msg){
 
                 if ( bus->set(&bus_status) ){
                     // compute the access time
-                    if (mode == DEFAULT){
+                    if (MODE_TYPE == DEFAULT){
                         dram_access_time = defaultBehavior();
                     } else {
                         dram_access_time = optimizedBehavior(cell_address >> 8);

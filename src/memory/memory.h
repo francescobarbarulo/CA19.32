@@ -2,6 +2,7 @@
 #define MEMORY_H
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <unistd.h>
 #include "../orchestrator/module.h"
@@ -19,21 +20,21 @@ using namespace std;
 #define RP  8
 #define RAS 24
 
-#define REFRESHING_INTERVAL 30
-#define REFRESHING_TIME     (RCD << 6)
+#define MS_INTERVAL         32 // [ms]
+#define FREQUENCY           32 // [KHz]
+#define REFRESHING_INTERVAL MS_INTERVAL * FREQUENCY
+#define REFRESHING_TIME     RCD * (1 << 6) // 2^6 rows
 
 enum ModeType {
     DEFAULT, FAST
 };
 
 // sim params definition
-#define MODE FAST
+#define MODE_TYPE DEFAULT
 
 class Memory : public module {
     using module::module;
     private:
-        // simulation params
-        ModeType mode = MODE;
         // dram
         uint32_t *dram;
         bool first_access;
@@ -45,7 +46,7 @@ class Memory : public module {
         Bus *bus;
         Bus_status bus_status;
     public:
-        Memory(string, int, Bus*);
+        Memory(string, int, Bus*, string prog = "");
         void onNotify(message*);
         message* createMessage(string, string);
         bool isSelfMessage(message*);
