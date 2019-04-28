@@ -170,6 +170,7 @@ This document describes the working details of the main memory and the main bus 
 
 \subsection{Bus}
 Main bus is 16~bit wide address and 32~bit wide data bus.
+Bus runs at 32~kHz.
 
 \subsection{\memoryname{}}
 \memoryname{} is a SDR DRAM, single data rate dynamic random access memory.
@@ -436,6 +437,40 @@ Analizing previous timing diagrams, these intervals can be observed:
   \item $t_{RP}$ (RAS Precharge time) is defined as the delay between the RAS assertion and the next command;
   \item $t_{RAS}$ (Active to Precharge Delay) is defined as the delay between the row assertion and the following precharge command;
 \end{itemize}
+
+\section{Refresh}
+Dynamic RAM cells are made by small capacitors that may hold some electric charge.
+Depending on the electric charge held by a capacitor, it can represent an high or a low bit.
+Unfortunately, capacitors slowly leak their charge, and need to be refreshed periodically to avoid losing the data stored.
+During the refreshing phase, memory can not be accessed.
+
+Time to refresh an entire DRAM can be computed as follow:
+
+$$ t_{R} = r \times t_{RAS} $$
+
+where:
+
+\begin{itemize}
+  \item $t_{R}$ is the refresh duration;
+  \item $r$ is the number of rows in the memory matrix;
+\end{itemize}
+
+To avoid losing too much charge in the capacitors, it is mandatory to refresh all the rows at maximum every 64~ms.
+\memoryname{} is implemented with a refresh every 32~ms.
+
+Duration of the interval between two refresh, in terms of number of bus clock cycles, can be computed using the following trivial formula:
+
+$$ n = t_{interval} \times f $$
+
+where:
+
+\begin{itemize}
+  \item $ n $ is the number of clock cycles;
+  \item $ t_{interval} $ is the duration of refresh interval;
+  \item $ f $ is the bus frequency;
+\end{itemize}
+
+Thus \memoryname{} is refreshed every $ 32 \times 10^{-3} s \cdot 32 \times 10^{3} Hz = 1000 $ clock cycles.
 
 \section{Interesting cases}
 The time needed by the previously described access modes can be computed differently depending on the word that is being accessed and the access mode.
