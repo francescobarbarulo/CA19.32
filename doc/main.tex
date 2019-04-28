@@ -163,6 +163,7 @@
 \tableofcontents
 
 \clearpage
+\clearpage
 
 \section{Introduction}
 
@@ -220,9 +221,13 @@ Physical main bus of \computername{} presents the following wires.
   \item \textbf{data:} is 32~wires wide and holds the actual data that must be read or written;
 \end{itemize}
 
-Thus, main computer bus can be represented in the simulation software by means of the following structure:
+Thus, main computer bus can be represented in the simulation software by means of the structure described in \figurename~\ref{src:bus-h}:
 
-\lstinputlisting[style=castyle,caption=Bus structure declaration]{../src/bus/bus.h}
+\begin{figure}
+\lstinputlisting[style=castyle]{../src/bus/bus.h}
+\caption{Bus structure declaration}
+\label{src:bus-h}
+\end{figure}
 
 Please note that the address line is 16~bit wide, but only 14 of them are actually used, since \memoryname{} holds only $2^{14} = 16K$ memory locations.
 In particular, the 2 least significant bits are always assumed to be 0.
