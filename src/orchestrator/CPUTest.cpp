@@ -12,9 +12,16 @@ CPUTest::CPUTest(string name, int priority, Bus *bus) : module(name, priority) {
 		for (int i = 0; i < N_OPERATIONS; i++){
 			test_addresses.push_back(i);
 		}
-	} else {
+	} else if (ACCESS_TYPE == RANDOM) {
 		for (int i = 0; i < N_OPERATIONS; i++){
 			test_addresses.push_back(rand() % MEM_SIZE);
+		}
+	} else {
+		for (int i = 0; i < N_OPERATIONS; i++){
+			if (rand() % 100 > PROB)
+				test_addresses.push_back(rand() % MEM_SIZE);
+			else
+				test_addresses.push_back(i);
 		}
 	}
 	// init main bus

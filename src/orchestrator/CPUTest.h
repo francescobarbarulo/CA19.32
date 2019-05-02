@@ -10,11 +10,12 @@
 #define MEM_SIZE 64 * (1 << 10)
 
 enum AccessType {
-	SEQUENTIAL, RANDOM
+	SEQUENTIAL, RANDOM, STOCHASTIC, REAL
 };
 // sim params
 #define N_OPERATIONS	1000
-#define ACCESS_TYPE		SEQUENTIAL
+#define ACCESS_TYPE	STOCHASTIC
+#define PROB 		80	//TODO: Check the possible real probability for sequential operations
 
 class CPUTest : public module {
 	// test variables

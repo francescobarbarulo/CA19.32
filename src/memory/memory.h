@@ -30,7 +30,7 @@ enum ModeType {
 };
 
 // sim params definition
-#define MODE_TYPE DEFAULT
+#define MODE_TYPE FAST
 
 class Memory : public module {
     using module::module;
