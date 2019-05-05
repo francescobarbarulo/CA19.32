@@ -1,105 +1,47 @@
-#include <cstring>
-#include <iostream>
-
 #include "CPUTest.h"
 
 using namespace std;
 
 CPUTest::CPUTest(string name, int priority, Bus *bus) : module(name, priority) {
-	srand(7); // 7 🤴 kings of Rome
 	// init test addresses for write/read operations
-	if (ACCESS_TYPE == SEQUENTIAL){
+	if (ACCESS_TYPE == STOCHASTIC) {
+		srand(7); // 7 🤴 kings of Rome
 		for (int i = 0; i < N_OPERATIONS; i++){
-			test_addresses.push_back(i);
-		}
-	} else if (ACCESS_TYPE == RANDOM) {
-		for (int i = 0; i < N_OPERATIONS; i++){
-			test_addresses.push_back(rand() % MEM_SIZE);
+			access_request ar = access_request();
+			ar.request = (rand() % 100 < READ_REQ_PROB) ? READ : WRITE;
+			ar.address = (rand() % 100 < RANDOM_ACCESS_PROB) ? (rand() % MEM_SIZE) : i;
+			test_requests.push_back(ar);
 		}
 	} else {
-		for (int i = 0; i < N_OPERATIONS; i++){
-			if (rand() % 100 > PROB)
-				test_addresses.push_back(rand() % MEM_SIZE);
-			else
-				test_addresses.push_back(i);
+		string filename = "examples/pinatrace16bit.txt";
+		ifstream file;
+		istringstream is;
+		string line;
+		file.open(filename, ios::in);
+		if (file.is_open()){
+			string request;
+			uint16_t address;
+			while(getline(file, line)){
+				is.str(line);
+			 	is >> request;
+				is >> hex >> address;
+
+				access_request ar = access_request();
+				ar.request = (request == "R") ? READ : WRITE;
+				ar.address = address;
+				test_requests.push_back(ar);
+			}
+			file.close();
+		} else {
+			cerr << "Unable to open " << filename << endl;
 		}
+
 	}
 	// init main bus
 	this->bus = bus;
 	// auto-message to start the system
 	message* myMessage = createMessage(getName());
 	sendWithDelay(myMessage, 0);
-}
-
-bool CPUTest::isSelfMessage(message *m){
-	return (m->source == getName());
-}
-
-bool CPUTest::write_request(){
-	string dest = "MEM";
-
-	bus_status.request = WRITE;
-	bus_status.address = test_addresses[op_counter % N_OPERATIONS];
-	bus_status.data = test_addresses[op_counter] + 1;
-
-	if ( !bus->set(&bus_status) ){
-		cout << getTime() << " [" << getName() << "] Fail accessing the bus on write" << endl;
-		return false;
-	}
-
-	op_counter++;
-
-	cout << getTime() << " [" << getName() << "] Sending write request at address "<< bus_status.address << ": " << bus_status.data << endl;
-	message *request = createMessage(dest);
-	sendWithDelay(request, 1);
-
-	return true;
-}
-
-bool CPUTest::read_request(){
-	string dest = "MEM";
-
-	bus_status.request = READ;
-	bus_status.address = test_addresses[op_counter % N_OPERATIONS];
-
-	if ( !bus->set(&bus_status) ){
-		cout << getTime() << " [" << getName() << "] Fail accessing the bus on read" << endl;
-		return false;
-	}
-
-	op_counter++;
-
-	cout << getTime() << " [" << getName() << "] Sending read request at address " << bus_status.address << endl;
-	message *request = createMessage(dest);
-	sendWithDelay(request, 1);
-
-	return true;
-}
-
-void CPUTest::onNotify(message *m){
-	if (m->dest == getName()){
-		// just to update the output every second
-		//sleep(1);
-
-		if (!isSelfMessage(m)){
-			if ( bus->get(&bus_status) ){
-				cout << getTime() << " [" << getName() << "] Read " << bus_status.data << endl;
-			}
-		}
-
-		if (op_counter >= N_OPERATIONS * 2){
-			cout << "Shutdown" << endl;
-			exit(0);
-		}
-
-		if (op_counter < N_OPERATIONS ){
-			write_request();
-			message *beep = createMessage(getName());
-			sendWithDelay(beep, 1);
-		} else {
-			read_request();
-		}
-	}
 }
 
 message* CPUTest::createMessage(string dest){
@@ -111,4 +53,64 @@ message* CPUTest::createMessage(string dest){
 	msg->magic_struct = NULL;
 
 	return msg;
+}
+
+bool CPUTest::isSelfMessage(message *m){
+	return (m->source == getName());
+}
+
+void CPUTest::sendSelfMessage(){
+	message *beep = createMessage(getName());
+	sendWithDelay(beep, 1);
+}
+
+void CPUTest::sendRequest(){
+	string dest = "MEM";
+	string request_str = (test_requests[op_counter].request == WRITE) ? "W" : "R";
+
+	bus_status.request = test_requests[op_counter].request;
+	bus_status.address = test_requests[op_counter].address;
+	bus_status.data = 77;
+
+	if ( !bus->set(&bus_status) ){
+		/* It may happen only on write attempts because the CPU is notified by itself
+		   and the memory may not have got the bus status. Thus the CPU will try to set
+		   the bus until it succeeds
+		*/
+		cout << dec << getTime() << " [" << getName() << "] Fail accessing the bus on " << request_str << endl;
+		sendSelfMessage();
+		return;
+	}
+
+	cout << dec << getTime() << " [" << getName() << "] " << request_str << " ";
+	cout << hex << "0x" << setfill('0') << setw(4) << bus_status.address << endl;
+	message *request = createMessage(dest);
+	sendWithDelay(request, 1);
+
+	if (test_requests[op_counter].request == WRITE){
+		// schedule next operation here because the write request does not get back any response
+		sendSelfMessage();
+	}
+
+	// increment operation counter
+	op_counter++;
+}
+
+void CPUTest::onNotify(message *m){
+	if (m->dest == getName()){
+
+		if (!isSelfMessage(m)){
+			if ( bus->get(&bus_status) ){
+				cout << dec << getTime() << " [" << getName() << "] Data ";
+				cout << hex << bus_status.data << endl;
+			}
+		}
+
+		if (op_counter >= test_requests.size()){
+			cout << "Shutdown" << endl;
+			exit(0);
+		}
+
+		sendRequest();
+	}
 }
