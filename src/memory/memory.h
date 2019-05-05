@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <fstream>
-#include <cstring>
-#include <unistd.h>
+#include <string>
+#include <stdlib.h>
 #include "../orchestrator/module.h"
 #include "../orchestrator/structures.h"
 #include "../bus/bus.h"
@@ -30,7 +30,7 @@ enum ModeType {
 };
 
 // sim params definition
-#define MODE_TYPE FAST
+#define MODE_TYPE DEFAULT
 
 class Memory : public module {
     using module::module;
@@ -48,8 +48,13 @@ class Memory : public module {
     public:
         Memory(string, int, Bus*, string prog = "");
         void onNotify(message*);
+        // message managing
         message* createMessage(string, string);
         bool isSelfMessage(message*);
+        // requests managing
+        void onReadRequest(uint16_t, uint16_t, string);
+        void onWriteRequest(uint16_t);
+        // dram response time
         int defaultBehavior();
         int optimizedBehavior(uint16_t);
         // refreshing phase

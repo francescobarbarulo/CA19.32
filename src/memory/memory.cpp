@@ -3,6 +3,7 @@
 Memory::Memory(string name, int priority, Bus *bus, string program) : module(name, priority) {
     dram = new uint32_t[DRAM_SIZE];
     first_access = true;
+    refreshing_phase = false;
     this->bus = bus;
 
     // load program
@@ -52,8 +53,6 @@ int Memory::optimizedBehavior(uint16_t current_row_addressed){
         time = CL + RCD + RP;
     }
 
-    last_row_addressed = current_row_addressed;
-
     return time;
 }
 
@@ -63,20 +62,49 @@ void Memory::startRefresh(){
 
     message *refresh_ending_msg = createMessage(getName(), getName());
     sendWithDelay(refresh_ending_msg, REFRESHING_TIME);
-    cout << getTime() << " [" << getName() << "] Refreshing..." << endl;
+    cout << dec << getTime() << " [" << getName() << "] Refreshing..." << endl;
 }
 
 void Memory::endRefresh(){
     refreshing_phase = false;
     message *refresh_msg = createMessage(getName(), getName());
     sendWithDelay(refresh_msg, REFRESHING_INTERVAL);
-    cout << getTime() << " [" << getName() << "] Refreshing phase ended" << endl;
+    cout << dec << getTime() << " [" << getName() << "] Refreshing phase ended" << endl;
+}
+
+void Memory::onReadRequest(uint16_t cell_address, uint16_t current_row_addressed, string response_dest){
+    int dram_access_time = 0;
+    cout << dec << getTime() << " [" << getName() << "] Received read request at cell " << cell_address << endl;
+
+    bus_status.data = dram[cell_address];
+
+    if ( bus->set(&bus_status) ){
+        // compute the access time
+        if (MODE_TYPE == DEFAULT){
+            dram_access_time = defaultBehavior();
+        } else {
+            dram_access_time = optimizedBehavior(current_row_addressed);
+        }
+
+        // response msg creation
+        message *response = createMessage(getName(), response_dest);
+        sendWithDelay(response, dram_access_time);
+        cout << dec << getTime() << " [" << getName() << "] Sending msg to " << response_dest << " with delay of " << dram_access_time << endl;
+
+    } else {
+        cout << dec << "[" << getName() << "] Fail accessing the bus" << endl;
+        cerr << "[ERR] Something went wrong in the protocol" << endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+void Memory::onWriteRequest(uint16_t cell_address){
+    cout << dec << getTime() << " [" << getName() << "] Received write request at cell " << cell_address << endl;
+    dram[cell_address] = bus_status.data;
 }
 
 void Memory::onNotify(message *msg){
     if ( msg->dest == this->getName() ){
-        // just to update the output every second
-        //sleep(1);
 
         if (isSelfMessage(msg)){
             // for refreshing phase
@@ -91,46 +119,27 @@ void Memory::onNotify(message *msg){
                 return;
             }
 
-            int dram_access_time = 0;
             // first of all get the current bus status
             if ( !bus->get(&bus_status) ){
-                cout << "[" << getName() << "] Fail accessing the bus" << endl;
+                cout << dec << "[" << getName() << "] Fail accessing the bus" << endl;
                 return;
             }
 
             uint16_t cell_address = bus_status.address >> 2;
+            uint16_t current_row_addressed = cell_address >> 8;
 
             if ( bus_status.request == READ ){
-                // read access
-                cout << getTime() << " [" << getName() << "] Received read request at cell " << cell_address << endl;
-
-                bus_status.data = dram[cell_address];
-
-                if ( bus->set(&bus_status) ){
-                    // compute the access time
-                    if (MODE_TYPE == DEFAULT){
-                        dram_access_time = defaultBehavior();
-                    } else {
-                        dram_access_time = optimizedBehavior(cell_address >> 8);
-                    }
-
-                    // response msg creation
-                    message *response = createMessage(getName(), (string)msg->source);
-                    sendWithDelay(response, dram_access_time);
-                    cout << getTime() << " [" << getName() << "] sending msg to " << msg->source << " with delay of " << dram_access_time << endl;
-
-                    // from now on there will be normal reads
-                    if (first_access) { first_access = !first_access; }
-
-                } else {
-                    // !! what to do ?!?!
-                    cout << "[" << getName() << "] Fail accessing the bus" << endl;
-                }
+                onReadRequest(cell_address, current_row_addressed, string(msg->source));
             } else if ( bus_status.request == WRITE ) {
-                // write access
-                cout << getTime() << " [" << getName() << "] Received write request at cell " << cell_address << endl;
-                dram[cell_address] = bus_status.data;
+                onWriteRequest(cell_address);
+            } else {
+                cerr << "[ERR] Undefined bus status" << endl;
+                exit(EXIT_FAILURE);
             }
+
+            last_row_addressed = current_row_addressed;
+            // from now on there will be normal accesses according to dram response times
+            if (first_access) { first_access = !first_access; }
         }
     }
 }
