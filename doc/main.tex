@@ -1,5 +1,7 @@
 \documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
+% for comment blocks
+\usepackage{verbatim}
 
 % Larger borders -- we do not want do waste paper, even if it is only paper on screen =)
 \usepackage[top=2.5cm, bottom=2.5cm, left=2cm, right=2cm]{geometry}
@@ -31,6 +33,9 @@
 % Timing diagrams
 \usepackage{tikz-timing}
 \usetikztiminglibrary{arrows}
+
+% Block diagrams
+\usetikzlibrary{shapes}
 
 % Graphs styles
 \forestset{
@@ -496,6 +501,80 @@ This time mainly depends on the address of the last word accessed, that can lay 
 % accessing a bit from a DRAM with the right row open (CL)
 % accessing a bit from a DRAM without an active row (t_RCD + t_CL)
 % accessing a bit from a DRAM with the wrong row open (t_RP + t_RCD + t_CL)
+
+\section{Simulation}
+The described memory has been implemented in an event-driven simulator.
+
+\subsection{Simulator}
+The simulator is organized in modules that interact each other by means of messages. The sending function is scheduled through an event list. Thus when an event occurs, the message associated to such event is forwarded to all modules of the system. The modules are triggered through the \texttt{onNotify} method, inherited from the basic module. Once a module has checked whether it is the message destination, it can behave accordingly to its specifications.
+
+\subsection{Memory module}
+The \texttt{Memory} module has to answer to read and write requests coming, in the simplest case, from the CPU, when the cache is not present. Thus in order to test the \texttt{Memory} module, a \texttt{CPUTest} module has been implemented too.
+
+The \texttt{Memory} module is described in the following snippet of code:
+
+\begin{figure}[H]
+\lstinputlisting[style=castyle, firstline=35, lastline=64]{../src/memory/memory.h}
+\caption{Memory module declaration}
+\label{src:memory-h}
+\end{figure}
+
+As mentioned before, the \texttt{Memory} module extends the basic module inheriting the \texttt{onNotify} method whose body corresponds to the module main program. It will be executed only if the message destination is the memory.
+
+\subsubsection{Member variables}
+The \texttt{Memory} module is implemented through the following member variables:
+
+\begin{itemize}
+    \item \texttt{dram}: 64KiB \texttt{uint32\_t} array which represents the whole memory;
+    \item \texttt{first\_access} and \texttt{last\_row\_addressed}: parameters useful for computing the memory access time;
+    \item \texttt{refreshing\_phase} and \texttt{refreshing\_phase\_started\_at}: parameters useful for managing the refresh phase;
+    \item \texttt{bus} and \texttt{bus\_status}: variables for interacting with the main bus.
+\end{itemize}
+
+\subsubsection{Behavior}
+The \texttt{Memory} behavior is depicted in the following diagram:
+
+\begin{figure}[H]
+    \centering
+    \resizebox{0.6\textwidth}{!}{
+        % Define block styles
+        \tikzstyle{decision} = [diamond, draw, text width=5em, text badly centered, node distance=3cm, inner sep=0pt]
+        \tikzstyle{block} = [rectangle, draw, text width=8em, text centered, rounded corners, minimum height=4em]
+        \tikzstyle{line} = [draw]
+
+        \begin{tikzpicture}[node distance = 4cm, auto]
+            % Place nodes
+            \node [block] (init) {initialize module};
+            \node [decision, below of=init,  node distance = 4.5cm] (destination) {is destinated to me?};
+            \node [decision, below of=destination, node distance = 4.5cm] (selfmessage) {is self message?};
+            \node [decision, right of=selfmessage, node distance = 4.5cm] (refresh1) {is refreshing?};
+            \node [block, right of=refresh1, node distance = 4.5cm] (endrefresh) {End refresh};
+            \node [block, below of=refresh1] (startrefresh) {Start refresh};
+            \node [decision, below of=selfmessage, node distance = 4.5cm] (refresh2) {is refreshing?};
+            \node [block, left of=refresh2, node distance = 4.5cm] (postpone) {Postpone the request};
+            \node [block, below of=refresh2, node distance = 3cm] (bus) {Get the current bus status};
+            \node [decision, below of=bus] (read) {is a read request?};
+            \node [block, left of=read, node distance = 4.5cm] (update) {Update memory};
+            \node [block, right of=read, node distance = 4.5cm] (send) {Prepare the bus and send response};
+            \node [block, below of=read] (last) {Update last row used and there will not be first access anymore};
+            % Draw edges
+            \path [line] (init) -- node {msg received} (destination);
+            \path [line] (destination) -- node {yes} (selfmessage);
+            \path [line] (selfmessage) -- node {yes} (refresh1);
+            \path [line] (refresh1) -- node {yes} (endrefresh);
+            \path [line] (refresh1) -- node {no} (startrefresh);
+            \path [line] (selfmessage) -- node {no} (refresh2);
+            \path [line] (refresh2) -- node {yes} (postpone);
+            \path [line] (refresh2) -- node {no} (bus);
+            \path [line] (bus) -- (read);
+            \path [line] (read) -- node {no} (update);
+            \path [line] (read) -- node {yes} (send);
+            \path [line] (read) -- (last);
+        \end{tikzpicture}
+        }
+    \caption{Memory simulation flowchart}
+\end{figure}
+
 
 \section{Test}
 % test
