@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstring>
 #include <stdlib.h>
 #include "../orchestrator/module.h"
 #include "../orchestrator/structures.h"
@@ -22,6 +23,7 @@ using namespace std;
 
 #define MS_INTERVAL         32 // [ms]
 #define FREQUENCY           32 // [KHz]
+#define REFRESH_EN          false
 #define REFRESHING_INTERVAL MS_INTERVAL * FREQUENCY
 #define REFRESHING_TIME     RCD * (1 << 6) // 2^6 rows
 
