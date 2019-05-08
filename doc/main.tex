@@ -508,7 +508,6 @@ The described memory has been implemented in an event-driven simulator, courtesy
 The simulator is organized in modules that interact each other by means of messages. The sending function is scheduled through an event list. Thus when an event occurs, the message associated to such event is forwarded to all modules of the system. The modules are triggered through the \texttt{onNotify} method, inherited from the basic module. Once a module has checked whether it is the message destination, it behaves accordingly to its specifications.
 
 \subsection{Memory module}
-%%%%% HEREIAM
 In the simplest computer, no cache is present, so memory is directly linked to CPU and must answer only to its requests.
 In order to test the \texttt{Memory} module, an additional \texttt{CPUTest} module has been implemented too.
 The \texttt{Memory} module is described in the following snippet of code:
