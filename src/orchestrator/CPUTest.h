@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <vector>
 #include <unistd.h>
@@ -6,10 +7,11 @@
 #include <sstream>
 #include <fstream>
 
-
 #include "module.h"
 #include "structures.h"
 #include "../bus/bus.h"
+
+using namespace std;
 
 #define MEM_SIZE 64 * (1 << 10)
 

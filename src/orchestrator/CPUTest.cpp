@@ -1,7 +1,5 @@
 #include "CPUTest.h"
 
-using namespace std;
-
 CPUTest::CPUTest(string name, int priority, Bus *bus) : module(name, priority) {
 	// init test addresses for write/read operations
 	if (ACCESS_TYPE == STOCHASTIC) {
