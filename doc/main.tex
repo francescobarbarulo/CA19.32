@@ -360,7 +360,7 @@ Different timings can be used, as explained in the following section.
 
 \section{DRAM control}
 
-\subsection{Simple access}
+\subsection{Simple access} \label{sec:simple-access}
 This timing diagram represents the simplest memory cicle that can be used to read and write data in memory.
 
 \begin{minipage}{\textwidth}
@@ -393,7 +393,7 @@ This timing diagram represents the simplest memory cicle that can be used to rea
 \end{minipage}
 \end{minipage}
 
-\subsection{Fast page access}
+\subsection{Fast page access} \label{sec:fast-page-access}
 When accessing data it is possibile to take advantage of the principle of locality.
 
 Usually programs are sequential and have small loops, thus they use to access a small region of memory for a while. Moreover, they usually make computations over the same data for a while.
@@ -503,14 +503,14 @@ This time mainly depends on the address of the last word accessed, that can lay 
 % accessing a bit from a DRAM with the wrong row open (t_RP + t_RCD + t_CL)
 
 \section{Simulation}
-The described memory has been implemented in an event-driven simulator.
+The described memory has been implemented in an event-driven simulator, courtesy by Alexander De~Roberto from the \emph{multilevel cache} team.
 
-\subsection{Simulator}
-The simulator is organized in modules that interact each other by means of messages. The sending function is scheduled through an event list. Thus when an event occurs, the message associated to such event is forwarded to all modules of the system. The modules are triggered through the \texttt{onNotify} method, inherited from the basic module. Once a module has checked whether it is the message destination, it can behave accordingly to its specifications.
+The simulator is organized in modules that interact each other by means of messages. The sending function is scheduled through an event list. Thus when an event occurs, the message associated to such event is forwarded to all modules of the system. The modules are triggered through the \texttt{onNotify} method, inherited from the basic module. Once a module has checked whether it is the message destination, it behaves accordingly to its specifications.
 
 \subsection{Memory module}
-The \texttt{Memory} module has to answer to read and write requests coming, in the simplest case, from the CPU, when the cache is not present. Thus in order to test the \texttt{Memory} module, a \texttt{CPUTest} module has been implemented too.
-
+%%%%% HEREIAM
+In the simplest computer, no cache is present, so memory is directly linked to CPU and must answer only to its requests.
+In order to test the \texttt{Memory} module, an additional \texttt{CPUTest} module has been implemented too.
 The \texttt{Memory} module is described in the following snippet of code:
 
 \begin{figure}[H]
@@ -519,7 +519,8 @@ The \texttt{Memory} module is described in the following snippet of code:
 \label{src:memory-h}
 \end{figure}
 
-As mentioned before, the \texttt{Memory} module extends the basic module inheriting the \texttt{onNotify} method whose body corresponds to the module main program. It will be executed only if the message destination is the memory.
+As mentioned before, the \texttt{Memory} module extends the basic module inheriting the \texttt{onNotify} method whose body corresponds to the module main program.
+It will be executed only if the message destination is the memory.
 
 \subsubsection{Member variables}
 The \texttt{Memory} module is implemented through the following member variables:
@@ -532,7 +533,7 @@ The \texttt{Memory} module is implemented through the following member variables
 \end{itemize}
 
 \subsubsection{Behavior}
-The \texttt{Memory} behavior is depicted in the following diagram:
+\texttt{Memory} behavior is depicted in the following flowchart diagram:
 
 \begin{figure}[H]
     \centering
@@ -575,8 +576,33 @@ The \texttt{Memory} behavior is depicted in the following diagram:
     \caption{Memory simulation flowchart}
 \end{figure}
 
+\subsection{Simulation parameters}
+Simulation flow can be altered by means of the following parameters:
+
+\begin{itemize}
+  \item \texttt{N\_OPERATIONS}: defines number of operations that will be performed;
+  \item \texttt{ACCESS\_TYPE}: defines how the access sequence generated; access sequence is a sequence of (address, operation) tuples; it must be chosen among the following two options:
+  \begin{itemize}
+    \item \texttt{REAL}: sequence is extracted using \emph{pinatrace} tool on a real world test program, provided by Andrea~Mattia Garavagno from the \emph{tracing} team;
+    \item \texttt{STOCHASTIC}: sequence is generated randomly using the following parameters;
+  \end{itemize}
+  \item \texttt{RANDOM\_ACCESS\_PROB}: defines the probability of a random access, where \texttt{100} means totally random access and \texttt{0} means totally sequential access;
+  \item \texttt{READ\_REQ\_PROB}: defines the probability that an access is a read or a write, where \texttt{100} means that every access will be a read, while \texttt{0} means that every access will be a write;
+  \item \texttt{MODE\_TYPE}: defines page access type; it must be chosen among the following two options:
+  \begin{itemize}
+    \item \texttt{DEFAULT}: access is performed using the simple access mode, as described in Section~\ref{sec:simple-access};
+    \item \texttt{FAST}: access is performed using the fast page access mode, as described in Section~\ref{sec:fast-page-access};
+  \end{itemize}
+\end{itemize}
+
+% TODO
+%5 ripetizione per cambiare il seed
+
+
 
 \section{Test}
+
+
 % test
 % test with subsequent addresses
 % test with random addresses
