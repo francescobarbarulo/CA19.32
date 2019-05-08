@@ -5,15 +5,6 @@ Bus::Bus(){
     busy = false;
 }
 
-/*
-Bus* Bus::getInstance(){
-    if (!instance){
-        instance = new Bus();
-    }
-    return instance;
-}
-*/
-
 bool Bus::set(Bus_status *s){
     if (busy){
         // It is not possible to change bus status while components are accessing to it
@@ -54,6 +45,7 @@ ostream& operator<<(ostream& os, const Bus& b){
     os << "a15_a0\t0x" << setfill ('0') << setw(4) << hex << b.address << endl;
     os << "d31_d0\t0x" << setfill ('0') << setw(8) << hex << b.data << endl;
 
+    os << "status: ";
     if (b.busy) os << "BUSY";
     else os << "IDLE";
     os << endl;

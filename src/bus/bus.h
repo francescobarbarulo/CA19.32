@@ -17,8 +17,6 @@ struct Bus_status {
 
 class Bus {
     private:
-        // singleton pattern
-        //static Bus *instance;
         // status
         bool busy;
         request_t request;
@@ -26,8 +24,7 @@ class Bus {
         uint32_t data;
     public:
         Bus();
-        //static Bus *getInstance();
-        bool set(Bus_status*); // return true if the bus is idle
+        bool set(Bus_status*);
         bool get(Bus_status*);
         friend ostream& operator<<(ostream&, const Bus&);
 };
