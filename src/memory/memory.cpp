@@ -19,8 +19,10 @@ Memory::Memory(string name, int priority, Bus *bus, string program) : module(nam
     }
 
     // message for memory refresh
-    message *refresh_msg = createMessage(getName(), getName());
-    sendWithDelay(refresh_msg, REFRESHING_INTERVAL);
+    if (REFRESH_EN){
+        message *refresh_msg = createMessage(getName(), getName());
+        sendWithDelay(refresh_msg, REFRESHING_INTERVAL);
+    }
 }
 
 bool Memory::isSelfMessage(message *m){

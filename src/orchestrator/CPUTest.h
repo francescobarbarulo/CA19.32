@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <cstring>
 #include <vector>
 #include <unistd.h>
 #include <iostream>
@@ -25,10 +26,10 @@ struct access_request {
 };
 
 // sim params
-#define N_OPERATIONS 		2000
-#define ACCESS_TYPE			REAL
-#define RANDOM_ACCESS_PROB	0
-#define READ_REQ_PROB 		0	//TODO: Check the possible real probability for sequential operations
+#define N_OPERATIONS 		1000
+#define ACCESS_TYPE			STOCHASTIC
+#define RANDOM_ACCESS_PROB	0	// 0÷100%
+#define READ_REQ_PROB 		0	// 0÷100%
 
 class CPUTest : public module {
 	// test variables
