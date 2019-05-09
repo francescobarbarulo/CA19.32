@@ -96,9 +96,8 @@
 }
 \lstset {
 	basicstyle=\footnotesize\ttfamily,
-	numbers=left,
+	numbers=none,
 	numbersep=5pt,
-	numberstyle=\tiny,
 	stepnumber=1,
 	firstnumber=1,
 	tabsize=2,
@@ -518,9 +517,6 @@ The \texttt{Memory} module is described in the following snippet of code:
 \label{src:memory-h}
 \end{figure}
 
-As mentioned before, the \texttt{Memory} module extends the basic module inheriting the \texttt{onNotify} method whose body corresponds to the module main program.
-It will be executed only if the message destination is the memory.
-
 \subsubsection{Member variables}
 The \texttt{Memory} module is implemented through the following member variables:
 
@@ -531,12 +527,26 @@ The \texttt{Memory} module is implemented through the following member variables
     \item \texttt{bus} and \texttt{bus\_status}: variables for interacting with the main bus.
 \end{itemize}
 
-\subsubsection{Behavior}
-\texttt{Memory} behavior is depicted in the following flowchart diagram:
+\subsubsection{Methods}
+\texttt{Memory} operations are defined by the following methods:
 
-\begin{figure}[H]
+\begin{itemize}
+    \item \texttt{onNotify(message*)}: inherited from the basic module, it corresponds to the module main program;
+    \item \texttt{createMessage(string, string)}: creates a new message according to source and destination parameters;
+    \item \texttt{isSelfMessage(message*)}: returns \texttt{true} if the message source is the module itself, \texttt{false} otherwise;
+    \item \texttt{onReadRequest(uint16\_t, uint16\_t, string)}: performs the read operation;
+    \item \texttt{onWriteRequest(uint16\_t)}: performs the write operation;
+    \item \texttt{defaultBehavior()}: computes memory access time without considering the past access history; all accesses take the same amount of time, as described in Section~\ref{sec:simple-access};
+    \item \texttt{optimizedBehavior(uint16\_t)}: computes memory access times according to the past access history, as described in Section~\ref{sec:fast-page-access};
+    \item \texttt{startRefresh()}: starts the refreshing phase;
+    \item \texttt{endRefresh()}: ends the refreshing phase;
+\end{itemize}
+
+\texttt{Memory} behavior is depicted in the flowchart diagram in Figure~\ref{fig:flowchart}.
+
+\begin{figure}
     \centering
-    \resizebox{0.6\textwidth}{!}{
+    \resizebox{0.8\textwidth}{!}{
         % Define block styles
         \tikzstyle{decision} = [diamond, draw, text width=5em, text badly centered, node distance=3cm, inner sep=0pt]
         \tikzstyle{block} = [rectangle, draw, text width=8em, text centered, rounded corners, minimum height=4em]
@@ -569,10 +579,12 @@ The \texttt{Memory} module is implemented through the following member variables
             \path [line] (bus) -- (read);
             \path [line] (read) -- node {no} (update);
             \path [line] (read) -- node {yes} (send);
-            \path [line] (read) -- (last);
+            \path [line] (update) |- (last);
+            \path [line] (send) |- (last);
         \end{tikzpicture}
         }
     \caption{Memory simulation flowchart}
+    \label{fig:flowchart}
 \end{figure}
 
 \subsection{Simulation parameters}
