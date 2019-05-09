@@ -537,7 +537,7 @@ The \texttt{Memory} module is implemented through the following member variables
     \item \texttt{onReadRequest(uint16\_t, uint16\_t, string)}: performs the read operation;
     \item \texttt{onWriteRequest(uint16\_t)}: performs the write operation;
     \item \texttt{defaultBehavior()}: computes memory access time without considering the past access history; all accesses take the same amount of time, as described in Section~\ref{sec:simple-access};
-    \item \texttt{optimizedBehavior(uint16\_t)}: computes memory access times according to the past access history, as described in Section~\ref{sec:fast-page-access};
+    \item \texttt{optimizedBehavior(uint16\_t)}: computes memory access time according to the past access history, as described in Section~\ref{sec:fast-page-access};
     \item \texttt{startRefresh()}: starts the refreshing phase;
     \item \texttt{endRefresh()}: ends the refreshing phase;
 \end{itemize}
