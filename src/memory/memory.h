@@ -25,7 +25,7 @@ using namespace std;
 #define FREQUENCY           32 // [KHz]
 #define REFRESH_EN          false
 #define REFRESHING_INTERVAL MS_INTERVAL * FREQUENCY
-#define REFRESHING_TIME     RCD * (1 << 6) // 2^6 rows
+#define REFRESHING_TIME     RAS * (1 << 6) // 2^6 rows
 
 enum ModeType {
     DEFAULT, FAST
