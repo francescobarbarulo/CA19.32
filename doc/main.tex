@@ -502,7 +502,7 @@ This time mainly depends on the address of the last word accessed, that can lay 
 % accessing a bit from a DRAM with the wrong row open (t_RP + t_RCD + t_CL)
 
 \section{Simulation}
-The described memory has been implemented in an event-driven simulator, courtesy by Alexander De~Roberto from the \emph{multilevel cache} team.
+The described memory has been implemented in an event-driven simulator.
 
 The simulator is organized in modules that interact each other by means of messages. The sending function is scheduled through an event list. Thus when an event occurs, the message associated to such event is forwarded to all modules of the system. The modules are triggered through the \texttt{onNotify} method, inherited from the basic module. Once a module has checked whether it is the message destination, it behaves accordingly to its specifications.
 
@@ -512,7 +512,7 @@ In order to test the \texttt{Memory} module, an additional \texttt{CPUTest} modu
 The \texttt{Memory} module is described in the following snippet of code:
 
 \begin{figure}[H]
-\lstinputlisting[style=castyle, firstline=35, lastline=64]{../src/memory/memory.h}
+\lstinputlisting[style=castyle, firstline=35, lastline=65]{../src/memory/memory.h}
 \caption{Memory module declaration}
 \label{src:memory-h}
 \end{figure}
