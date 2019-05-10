@@ -8,7 +8,7 @@ Bus::Bus(){
 bool Bus::set(Bus_status *s){
     if (busy){
         // It is not possible to change bus status while components are accessing to it
-        cout << "[BUS] trying to set before getting the status" << endl;
+        clog << "[BUS] trying to set before getting the status" << endl;
         return false;
     }
 
@@ -23,7 +23,7 @@ bool Bus::set(Bus_status *s){
 bool Bus::get(Bus_status *s){
     if (!busy){
         // the bus status is meaningless
-        cout << "[BUS] trying to get before setting the status" << endl;
+        clog << "[BUS] trying to get before setting the status" << endl;
         return false;
     }
 

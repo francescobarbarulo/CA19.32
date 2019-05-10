@@ -7,18 +7,16 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <random>
 
 #include "module.h"
 #include "structures.h"
 #include "../bus/bus.h"
+#include "parameters.h"
 
 using namespace std;
 
 #define MEM_SIZE 64 * (1 << 10)
-
-enum access_t {
-	STOCHASTIC, REAL
-};
 
 struct access_request {
 	request_t request;
@@ -26,12 +24,14 @@ struct access_request {
 };
 
 // sim params
-#define N_OPERATIONS 		1000
-#define ACCESS_TYPE			STOCHASTIC
-#define RANDOM_ACCESS_PROB	0	// 0÷100%
-#define READ_REQ_PROB 		0	// 0÷100%
+#define N_OPERATIONS MEM_SIZE >> 1
+extern Parameters params;
 
 class CPUTest : public module {
+	// params
+	AccessType ACCESS_TYPE;
+	unsigned int RANDOM_ACCESS_PROB;
+	unsigned int READ_REQ_PROB;
 	// test variables
 	vector<access_request> test_requests;
 	unsigned int op_counter;

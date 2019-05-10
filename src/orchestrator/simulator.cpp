@@ -2,10 +2,15 @@
 #include "CPUTest.h"
 #include "../memory/memory.h"
 #include "System.h"
+#include "parameters.h"
 
 using namespace std;
 
-int main() {
+Parameters params;
+
+int main(int argc, char* argv[]) {
+	parseCommand(argc, argv);
+
 	System system;
 	Bus main_bus = Bus();
 

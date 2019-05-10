@@ -9,6 +9,7 @@
 #include "../orchestrator/module.h"
 #include "../orchestrator/structures.h"
 #include "../bus/bus.h"
+#include "../orchestrator/parameters.h"
 
 using namespace std;
 
@@ -23,20 +24,17 @@ using namespace std;
 
 #define MS_INTERVAL         32 // [ms]
 #define FREQUENCY           32 // [KHz]
-#define REFRESH_EN          false
+#define REFRESH_EN          true
 #define REFRESHING_INTERVAL MS_INTERVAL * FREQUENCY
 #define REFRESHING_TIME     RAS * (1 << 6) // 2^6 rows
 
-enum ModeType {
-    DEFAULT, FAST
-};
-
-// sim params definition
-#define MODE_TYPE DEFAULT
+extern Parameters params;
 
 class Memory : public module {
     using module::module;
     private:
+        //params
+        ModeType MODE_TYPE;
         // dram
         uint32_t *dram;
         bool first_access;

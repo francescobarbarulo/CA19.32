@@ -1,6 +1,10 @@
 #include "memory.h"
 
 Memory::Memory(string name, int priority, Bus *bus, string program) : module(name, priority) {
+    // init params
+    MODE_TYPE = params.memory_mode;
+
+    // init memory
     dram = new uint32_t[DRAM_SIZE];
     first_access = true;
     refreshing_phase = false;
@@ -15,7 +19,7 @@ Memory::Memory(string name, int priority, Bus *bus, string program) : module(nam
 
         file.read((char*)dram, size);
         file.close();
-        cout << "[I] Program '" << program << "' loaded" << endl;
+        clog << "[I] Program '" << program << "' loaded" << endl;
     }
 
     // message for memory refresh
@@ -64,19 +68,19 @@ void Memory::startRefresh(){
 
     message *refresh_ending_msg = createMessage(getName(), getName());
     sendWithDelay(refresh_ending_msg, REFRESHING_TIME);
-    cout << dec << getTime() << " [" << getName() << "] Refreshing..." << endl;
+    clog << dec << getTime() << " [" << getName() << "] Refreshing..." << endl;
 }
 
 void Memory::endRefresh(){
     refreshing_phase = false;
     message *refresh_msg = createMessage(getName(), getName());
     sendWithDelay(refresh_msg, REFRESHING_INTERVAL);
-    cout << dec << getTime() << " [" << getName() << "] Refreshing phase ended" << endl;
+    clog << dec << getTime() << " [" << getName() << "] Refreshing phase ended" << endl;
 }
 
 void Memory::onReadRequest(uint16_t cell_address, uint16_t current_row_addressed, string response_dest){
     int dram_access_time = 0;
-    cout << dec << getTime() << " [" << getName() << "] Received read request at cell " << cell_address << endl;
+    clog << dec << getTime() << " [" << getName() << "] Received read request at cell " << cell_address << endl;
 
     bus_status.data = dram[cell_address];
 
@@ -91,17 +95,17 @@ void Memory::onReadRequest(uint16_t cell_address, uint16_t current_row_addressed
         // response msg creation
         message *response = createMessage(getName(), response_dest);
         sendWithDelay(response, dram_access_time);
-        cout << dec << getTime() << " [" << getName() << "] Sending msg to " << response_dest << " with delay of " << dram_access_time << endl;
+        clog << dec << getTime() << " [" << getName() << "] Sending msg to " << response_dest << " with delay of " << dram_access_time << endl;
 
     } else {
-        cout << dec << "[" << getName() << "] Fail accessing the bus" << endl;
+        clog << dec << "[" << getName() << "] Fail accessing the bus" << endl;
         cerr << "[ERR] Something went wrong in the protocol" << endl;
         exit(EXIT_FAILURE);
     }
 }
 
 void Memory::onWriteRequest(uint16_t cell_address){
-    cout << dec << getTime() << " [" << getName() << "] Received write request at cell " << cell_address << endl;
+    clog << dec << getTime() << " [" << getName() << "] Received write request at cell " << cell_address << endl;
     dram[cell_address] = bus_status.data;
 }
 
@@ -123,7 +127,7 @@ void Memory::onNotify(message *msg){
 
             // first of all get the current bus status
             if ( !bus->get(&bus_status) ){
-                cout << dec << "[" << getName() << "] Fail accessing the bus" << endl;
+                clog << dec << "[" << getName() << "] Fail accessing the bus" << endl;
                 return;
             }
 

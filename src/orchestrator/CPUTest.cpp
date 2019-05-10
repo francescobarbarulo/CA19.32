@@ -1,13 +1,18 @@
 #include "CPUTest.h"
 
 CPUTest::CPUTest(string name, int priority, Bus *bus) : module(name, priority) {
+	// init params
+	ACCESS_TYPE = params.cpu_access;
+	RANDOM_ACCESS_PROB = params.random_access_prob;
+	READ_REQ_PROB = params.read_req_prob;
+
 	// init test addresses for write/read operations
 	if (ACCESS_TYPE == STOCHASTIC) {
-		srand(7); // 7 🤴 kings of Rome
+		mt19937 generator(params.seed);
 		for (int i = 0; i < N_OPERATIONS; i++){
 			access_request ar = access_request();
-			ar.request = (rand() % 100 < READ_REQ_PROB) ? READ : WRITE;
-			ar.address = (rand() % 100 < RANDOM_ACCESS_PROB) ? (rand() % MEM_SIZE) : i;
+			ar.request = (generator() % 100 < READ_REQ_PROB) ? READ : WRITE;
+			ar.address = (generator() % 100 < RANDOM_ACCESS_PROB) ? (generator() % MEM_SIZE) : i;
 			test_requests.push_back(ar);
 		}
 	} else {
@@ -19,7 +24,8 @@ CPUTest::CPUTest(string name, int priority, Bus *bus) : module(name, priority) {
 		if (file.is_open()){
 			string request;
 			uint16_t address;
-			while(getline(file, line)){
+			int counter = 0;
+			while(getline(file, line) && counter < N_OPERATIONS){
 				is.str(line);
 			 	is >> request;
 				is >> hex >> address;
@@ -28,6 +34,8 @@ CPUTest::CPUTest(string name, int priority, Bus *bus) : module(name, priority) {
 				ar.request = (request == "R") ? READ : WRITE;
 				ar.address = address;
 				test_requests.push_back(ar);
+
+				++counter;
 			}
 			file.close();
 		} else {
@@ -75,13 +83,13 @@ void CPUTest::sendRequest(){
 		   and the memory may not have got the bus status. Thus the CPU will try to set
 		   the bus until it succeeds
 		*/
-		cout << dec << getTime() << " [" << getName() << "] Fail accessing the bus on " << request_str << endl;
+		clog << dec << getTime() << " [" << getName() << "] Fail accessing the bus on " << request_str << endl;
 		sendSelfMessage();
 		return;
 	}
 
-	cout << dec << getTime() << " [" << getName() << "] " << request_str << " ";
-	cout << hex << "0x" << setfill('0') << setw(4) << bus_status.address << endl;
+	clog << dec << getTime() << " [" << getName() << "] " << request_str << " ";
+	clog << hex << "0x" << setfill('0') << setw(4) << bus_status.address << endl;
 	message *request = createMessage(dest);
 	sendWithDelay(request, 1);
 
@@ -99,13 +107,13 @@ void CPUTest::onNotify(message *m){
 
 		if (!isSelfMessage(m)){
 			if ( bus->get(&bus_status) ){
-				cout << dec << getTime() << " [" << getName() << "] Data ";
-				cout << hex << bus_status.data << endl;
+				clog << dec << getTime() << " [" << getName() << "] Data ";
+				clog << hex << bus_status.data << endl;
 			}
 		}
 
 		if (op_counter >= test_requests.size()){
-			cout << "Shutdown" << endl;
+			cout << getTime() << endl;
 			exit(0);
 		}
 
