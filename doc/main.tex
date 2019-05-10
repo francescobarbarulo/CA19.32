@@ -587,23 +587,30 @@ The \texttt{Memory} module is implemented through the following member variables
     \label{fig:flowchart}
 \end{figure}
 
-\subsection{Simulation parameters}
-Simulation flow can be altered by means of the following parameters:
+\subsection{Simulator parameters}
+Simulation flow can be altered by means of the following parameters passed as arguments on the command line.
+
+\begin{verbatim}
+  $ sim ACCESS_TYPE MODE_TYPE RANDOM_ACCESS_PROB READ_REQ_PROB PRNG_SEED
+\end{verbatim}
+
+where
 
 \begin{itemize}
-  \item \texttt{N\_OPERATIONS}: defines number of operations that will be performed;
+  %\item \texttt{N\_OPERATIONS}: defines number of operations that will be performed;
   \item \texttt{ACCESS\_TYPE}: defines how the access sequence generated; access sequence is a sequence of (address, operation) tuples; it must be chosen among the following two options:
   \begin{itemize}
-    \item \texttt{REAL}: sequence is extracted using \emph{pinatrace} tool on a real world test program, provided by Andrea~Mattia Garavagno from the \emph{tracing} team;
-    \item \texttt{STOCHASTIC}: sequence is generated randomly using the following parameters;
+    \item \texttt{R}: sequence is \emph{real} and is extracted using \emph{pinatrace} tool on a real world test program, provided by Andrea~Mattia Garavagno from the \emph{tracing} team;
+    \item \texttt{S}: a \emph{stochastic} sequence is generated randomly using \texttt{*\_PROB} parameters;
   \end{itemize}
+  \item \texttt{MODE\_TYPE}: defines page access type; it must be chosen among the following two options:
+\begin{itemize}
+  \item \texttt{D}: access is performed using the simple \emph{default} access mode, as described in Section~\ref{sec:simple-access};
+  \item \texttt{F}: access is performed using the fast page access \emph{fast} mode, as described in Section~\ref{sec:fast-page-access};
+\end{itemize}
   \item \texttt{RANDOM\_ACCESS\_PROB}: defines the probability of a random access, where \texttt{100} means totally random access and \texttt{0} means totally sequential access;
   \item \texttt{READ\_REQ\_PROB}: defines the probability that an access is a read or a write, where \texttt{100} means that every access will be a read, while \texttt{0} means that every access will be a write;
-  \item \texttt{MODE\_TYPE}: defines page access type; it must be chosen among the following two options:
-  \begin{itemize}
-    \item \texttt{DEFAULT}: access is performed using the simple access mode, as described in Section~\ref{sec:simple-access};
-    \item \texttt{FAST}: access is performed using the fast page access mode, as described in Section~\ref{sec:fast-page-access};
-  \end{itemize}
+  \item \texttt{PRNG\_SEED}: defines the seed of the pseudo-random numbers generator; the Mersenne Twister pseudo-random generator provided by C++ STL has been used;
 \end{itemize}
 
 \section{Test}
