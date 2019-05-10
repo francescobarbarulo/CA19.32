@@ -610,6 +610,7 @@ where
 \end{itemize}
   \item \texttt{RANDOM\_ACCESS\_PROB}: defines the probability of a random access, where \texttt{100} means totally random access and \texttt{0} means totally sequential access;
   \item \texttt{READ\_REQ\_PROB}: defines the probability that an access is a read or a write, where \texttt{100} means that every access will be a read, while \texttt{0} means that every access will be a write;
+  \item \texttt{PRNG\_SEED}: defines the seed of the pseudo-random numbers generator; the Mersenne Twister pseudo-random generator provided by C++ STL has been used;
 \end{itemize}
 
 \section{Test}
