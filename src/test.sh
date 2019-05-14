@@ -1,8 +1,8 @@
 #!/bin/bash
 
 for MODE_TYPE in D F; do
-    # ./sim R $MODE_TYPE
-    echo "--sim R $MODE_TYPE"
+    echo -n "sim R $MODE_TYPE " >> output.txt
+    ./sim R $MODE_TYPE >> output.txt
 done
 
 for MODE_TYPE in D F; do
