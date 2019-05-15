@@ -616,7 +616,7 @@ where
   %\item \texttt{N\_OPERATIONS}: defines number of operations that will be performed;
   \item \texttt{ACCESS\_TYPE}: defines how the access sequence generated; access sequence is a sequence of (address, operation) tuples; it must be chosen among the following two options:
   \begin{itemize}
-    \item \texttt{R}: sequence is \emph{real} and is extracted using \emph{pinatrace} tool on a real world test program, provided by Andrea~Mattia Garavagno from the \emph{tracing} team;
+    \item \texttt{R}: sequence is \emph{real} and is extracted using \emph{pinatrace} tool on a real world test program, provided the \emph{tracing} team;
     \item \texttt{S}: a \emph{stochastic} sequence is generated randomly using \texttt{*\_PROB} parameters;
   \end{itemize}
   \item \texttt{MODE\_TYPE}: defines page access type; it must be chosen among the following two options:
@@ -630,6 +630,7 @@ where
 \end{itemize}
 
 \section{Test}
+\subsection{Stochastic}
 Simulation has been run with following values.
 
 \begin{table}[H]
@@ -650,6 +651,18 @@ Tests results are plotted in Figure~\ref{fig:test-simple-vs-fast}, from which we
   \caption{comparison between simple and fast access mode: dotted lines represent access time for simple access mode, while solid lines represent access time for fast access mode}
   \label{fig:test-simple-vs-fast}
 \end{figure}
+
+\subsection{Real}
+Real world memory read and write accesses have been recorder by tracing team, and they show the same results.
+
+\begin{table}[H]
+\center
+\begin{tabular}{| c | c | c | c |}\hline
+test	&	simple	& fast		& speedup \\ \hline
+01	&	873617	& 819560	& 1.07 \\ \hline
+\end{tabular}
+\caption{Time needed to perform 32768 memory access of various real world test programs}
+\end{table}
 
 \section{Transfer speed}
 Since this is a \emph{single data rate} memory, in short SDR, it is theoretically possible to read or write data from/to the memory once for every rising edge of the bus clock.
