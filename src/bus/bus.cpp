@@ -14,7 +14,7 @@ bool Bus::set(Bus_status *s){
 
     request = s->request;
     address = s->address;
-    data = s->data;
+    data = htobe32(s->data);
     busy = true;
 
     return true;
@@ -29,7 +29,7 @@ bool Bus::get(Bus_status *s){
 
     s->request = request;
     s->address = address;
-    s->data = data;
+    s->data = be32toh(data);
     busy = false;
 
     return true;
