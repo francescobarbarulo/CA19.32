@@ -518,6 +518,21 @@ The \texttt{Memory} module is described in the following snippet of code:
 \label{src:memory-h}
 \end{figure}
 
+\subsubsection{Delays}
+Delays have been defined as:
+
+\begin{table}[H]
+\centering
+\bgroup
+\def\arraystretch{1.5}  % add some padding
+\begin{tabular}{| c | c | c | c |}\hline
+$t_{CL}$ & $t_{RCD}$ & $t_{RP}$ & $t_{RAS}$ \\ \hline
+7 & 8 & 8 & 24 \\ \hline
+\end{tabular}
+\egroup
+\caption{delays definition in simulation}
+\end{table}
+
 \subsubsection{Member variables}
 The \texttt{Memory} module is implemented through the following member variables:
 
