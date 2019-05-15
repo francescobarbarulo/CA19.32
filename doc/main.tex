@@ -29,6 +29,7 @@
 \usepackage{tikz}
 \usepackage{forest,array}
 \usetikzlibrary{shadows}
+\usepackage{pgfplots}
 
 % Timing diagrams
 \usepackage{tikz-timing}
@@ -614,10 +615,28 @@ where
 \end{itemize}
 
 \section{Test}
-% 5 tests have been done with different seeds for the random number generator, and average of results has been calculated, in order to avoid possible biases due to a certain pseudorandom sequence
+Simulation has been run with following values.
 
-% which tests did we do?
-% Gerry knows
+\begin{table}[H]
+\center
+\begin{tabular}{| c | c |}\hline
+\texttt{MODE\_TYPE} & \texttt{\{D, F\}} \\ \hline
+\texttt{RANDOM\_ACCESS\_PROB} & \texttt{\{0, 20, 40, 60, 80, 100\}} \\ \hline
+\texttt{READ\_REQ\_PROB} & \texttt{\{0, 20, 40, 60, 80, 100\}} \\ \hline
+\texttt{PRNG\_SEED} & \texttt{\{0, 1, 2, 3, 4, 5, 6, 7, 8, 9\}} \\ \hline
+\end{tabular}
+\end{table}
+
+Ten different tests have been done with different seeds for the pseudo random number generator, and average of results has been calculated, in order to limit possible biases.
+
+\begin{figure}[H]
+  \includegraphics{img/test-simple-vs-fast.pdf}
+  \caption{Comparison between simple and fast access mode}
+  \label{fig:test-simple-vs-fast}
+\end{figure}
+
+In Figure~\ref{fig:test-simple-vs-fast}, dotted lines represent access time for simple access mode, while solid lines represent access time for fast access mode.
+Thus we deduce that fast access mode performs better than the simple access mode, given that at least about 70\% of accesses are sequential.
 
 \section{Transfer speed}
 Since this is a \emph{single data rate} memory, in short SDR, it is theoretically possible to read or write data from/to the memory once for every rising edge of the bus clock.
