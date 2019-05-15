@@ -16,7 +16,7 @@ CPUTest::CPUTest(string name, int priority, Bus *bus) : module(name, priority) {
 			test_requests.push_back(ar);
 		}
 	} else {
-		string filename = "examples/pinatrace16bit.txt";
+		string filename = "examples/pinatrace01.txt";
 		ifstream file;
 		istringstream is;
 		string line;
