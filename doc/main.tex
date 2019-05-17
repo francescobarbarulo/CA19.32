@@ -175,7 +175,7 @@
 This document describes the working details of the main memory and the main bus of the Computer~Architecture course computer.
 
 \subsection{Bus}
-Main bus is 16~bit wide address and 32~bit wide data bus.
+The main bus is divided into 16~bit for addresses and 32~bit for data.
 Bus runs at 32~kHz.
 
 \subsection{\memoryname{}}
@@ -258,7 +258,7 @@ Actions on bus must be performed in the simulation using the following protocol.
     \item if busy bit is~1, data is not actually written onto the bus, \texttt{set()} method returns \texttt{false} and module must wait and schedule data writes onto the bus at a later time (eg. next clock tick);
     \item if busy bit is~0, data is actually written onto the bus and \texttt{set()} method returns \texttt{true}.
     Once written data to bus, destination module must be notified of the bus change by sending it a message using methods provided by the orchestrator.\\
-    For the sake of simplicity, messages passed through the orchestrator can be tought as a model for the hardware \emph{enable} wire; thus, \texttt{magic\_struct} pointer of these messages is ignored by the receiver and it is suggested to set it to \texttt{NULL};
+    For the sake of simplicity, messages passed through the orchestrator can be thought as a model for the hardware \emph{enable} wire; thus, \texttt{magic\_struct} pointer of these messages is ignored by the receiver and it is suggested to set it to \texttt{NULL};
   \end{itemize}
 \end{itemize}
 
@@ -652,17 +652,21 @@ Tests results are plotted in Figure~\ref{fig:test-simple-vs-fast}, from which we
   \label{fig:test-simple-vs-fast}
 \end{figure}
 
-\subsection{Real}
-Real world memory read and write accesses have been recorder by tracing team, and they show the same results.
+%\subsection{Real}
+%Real world memory read and write accesses have been recorder by tracing team, and they show the same results.
 
-\begin{table}[H]
-\center
-\begin{tabular}{| c | c | c | c |}\hline
-test	&	simple	& fast		& speedup \\ \hline
-01	&	873617	& 819560	& 1.07 \\ \hline
-\end{tabular}
-\caption{Time needed to perform 32768 memory access of various real world test programs}
-\end{table}
+%\begin{table}[H]
+%\center
+%\begin{tabular}{| c | c | c | c |}\hline
+%test	&	simple	& fast		& speedup \\ \hline
+%01	&	873617	& 819560	& 1.07 \\ \hline	% unk
+%02	&	1309183	& 655367	& 2.00 \\ \hline	% kate
+%03	&	1006501	& 1029926	& 0.98 \\ \hline	% ls
+%04	&	998589	& 980791	& 1.02 \\ \hline	% true
+%
+%\end{tabular}
+%\caption{Time needed to perform 32768 memory access of various real world test programs}
+%\end{table}
 
 \section{Transfer speed}
 Since this is a \emph{single data rate} memory, in short SDR, it is theoretically possible to read or write data from/to the memory once for every rising edge of the bus clock.

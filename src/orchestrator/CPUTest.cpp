@@ -16,19 +16,20 @@ CPUTest::CPUTest(string name, int priority, Bus *bus) : module(name, priority) {
 			test_requests.push_back(ar);
 		}
 	} else {
-		string filename = "examples/pinatrace01.txt";
+		string filename = "examples/array.txt";
 		ifstream file;
-		istringstream is;
 		string line;
 		file.open(filename, ios::in);
 		if (file.is_open()){
 			string request;
 			uint16_t address;
 			int counter = 0;
-			while(getline(file, line) && counter < N_OPERATIONS){
-				is.str(line);
-			 	is >> request;
-				is >> hex >> address;
+			while(true) {
+                //if (counter >= N_OPERATIONS)  break;
+			 	file >> request;
+				file >> hex >> address;
+
+                if (! file) break;
 
 				access_request ar = access_request();
 				ar.request = (request == "R") ? READ : WRITE;
