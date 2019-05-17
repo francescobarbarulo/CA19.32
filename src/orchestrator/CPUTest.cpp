@@ -16,7 +16,7 @@ CPUTest::CPUTest(string name, int priority, Bus *bus) : module(name, priority) {
 			test_requests.push_back(ar);
 		}
 	} else {
-		string filename = "examples/array.txt";
+		string filename = "examples/" + params.file;
 		ifstream file;
 		string line;
 		file.open(filename, ios::in);

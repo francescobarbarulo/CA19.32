@@ -20,6 +20,7 @@ struct Parameters {
     unsigned int random_access_prob;
     unsigned int read_req_prob;
     unsigned int seed;
+	string file;
 };
 
 extern Parameters params;
