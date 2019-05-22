@@ -30,6 +30,7 @@
 \usepackage{forest,array}
 \usetikzlibrary{shadows}
 \usepackage{pgfplots}
+\usepackage{subcaption}
 
 % Timing diagrams
 \usepackage{tikz-timing}
@@ -646,11 +647,41 @@ Simulation has been run with following values.
 For each case ten different repetitions have been done, with different seeds for the pseudo random number generator. For every single scenario an average of results has been calculated, in order to limit possible biases. The number of repetitions is enough in order to have a 99\% confidence level.
 Tests results are plotted in Figure~\ref{fig:test-simple-vs-fast}, from which we deduce that fast access mode performs better than the simple access mode, given that at least about 70\% of accesses are sequential.
 
+\subsection{Real}
+Read and write accesses have been recorded by tracing team for some real world programs, and fast access mode shows an improvement in terms of execution time performances.
+
+Figure~\ref{fig:flow} shows a comparison of execution time for various real world programs addresses tracks, in simple access mode and fast access mode.
+
+Figure~\ref{fig:flow-i-d} shows a comparison of execution time for the same various real world programs address tracks, in simple access mode and fast access mode, if instruction and data flows are kept separated. These results can be used to build a possible hybrid hardware and software architecture to maximize performances.
+
 \begin{figure}
-  \includegraphics{img/test-simple-vs-fast.pdf}
+  \includegraphics[width=\textwidth]{img/test-simple-vs-fast.pdf}
   \caption{comparison between simple and fast access mode: dotted lines represent access time for simple access mode, while solid lines represent access time for fast access mode}
   \label{fig:test-simple-vs-fast}
 \end{figure}
+
+\begin{figure}
+  \includegraphics[width=\textwidth]{img/flow.pdf}
+  \caption{execution time ratio between fast and simple access mode for some real world programs}
+  \label{fig:flow}
+\end{figure}
+
+\begin{figure}
+  \center
+  \begin{subfigure}[b]{.45\textwidth}
+    \includegraphics[width=\textwidth]{img/flow-i.pdf}
+    \caption{}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{.45\textwidth}
+    \includegraphics[width=\textwidth]{img/flow-d.pdf}
+    \caption{}
+  \end{subfigure}
+
+  \caption{execution time ratio between fast and simple access mode for some real world programs, for (a) instructions flow only and (b) data flow only}
+  \label{fig:flow-i-d}
+\end{figure}
+
 
 %\subsection{Real}
 %Real world memory read and write accesses have been recorder by tracing team, and they show the same results.
