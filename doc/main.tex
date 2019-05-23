@@ -30,6 +30,7 @@
 \usepackage{forest,array}
 \usetikzlibrary{shadows}
 \usepackage{pgfplots}
+\usepackage{subcaption}
 
 % Timing diagrams
 \usepackage{tikz-timing}
@@ -465,7 +466,7 @@ where:
   \item $r$ is the number of rows in the memory matrix;
 \end{itemize}
 
-To avoid losing too much charge in the capacitors, it is mandatory to refresh all the rows at maximum every 64~ms.
+To avoid losing too much charge in the capacitors, it is mandatory to refresh all the rows at maximum every 64~ms\cite{bib:jedec}.
 \memoryname{} is implemented with a refresh every 32~ms.
 
 Duration of the interval between two refresh, in terms of number of bus clock cycles, can be computed using the following trivial formula:
@@ -519,7 +520,7 @@ The \texttt{Memory} module is described in the following snippet of code:
 \end{figure}
 
 \subsubsection{Delays}
-Delays have been defined as:
+Delays have been defined as in \cite{bib:spectek}:
 
 \begin{table}[H]
 \centering
@@ -616,7 +617,7 @@ where
   %\item \texttt{N\_OPERATIONS}: defines number of operations that will be performed;
   \item \texttt{ACCESS\_TYPE}: defines how the access sequence generated; access sequence is a sequence of (address, operation) tuples; it must be chosen among the following two options:
   \begin{itemize}
-    \item \texttt{R}: sequence is \emph{real} and is extracted using \emph{pinatrace} tool on a real world test program, provided the \emph{tracing} team;
+    \item \texttt{R}: sequence is \emph{real} and is extracted using \emph{pinatrace} tool on a real world test program\cite{bib:tracing-team};
     \item \texttt{S}: a \emph{stochastic} sequence is generated randomly using \texttt{*\_PROB} parameters;
   \end{itemize}
   \item \texttt{MODE\_TYPE}: defines page access type; it must be chosen among the following two options:
@@ -643,30 +644,43 @@ Simulation has been run with following values.
 \end{tabular}
 \end{table}
 
-Ten different tests have been done with different seeds for the pseudo random number generator, and average of results has been calculated, in order to limit possible biases.
+For each case ten different repetitions have been done, with different seeds for the pseudo random number generator. For every single scenario an average of results has been calculated, in order to limit possible biases. The number of repetitions is enough in order to have a 99\% confidence level.
 Tests results are plotted in Figure~\ref{fig:test-simple-vs-fast}, from which we deduce that fast access mode performs better than the simple access mode, given that at least about 70\% of accesses are sequential.
 
+\subsection{Real}
+Read and write accesses have been recorded \cite{bib:tracing-team} for some real world programs, and fast access mode shows an improvement in terms of execution time performances.
+
+Figure~\ref{fig:flow} shows a comparison of execution time for various real world programs addresses tracks, in simple access mode and fast access mode.
+
+Figure~\ref{fig:flow-i-d} shows a comparison of execution time for the same various real world programs address tracks, in simple access mode and fast access mode, if instruction and data flows are kept separated. These results can be used to build a possible hybrid hardware and software architecture to maximize performances.
+
 \begin{figure}
-  \includegraphics{img/test-simple-vs-fast.pdf}
+  \includegraphics[width=\textwidth]{img/test-simple-vs-fast.pdf}
   \caption{comparison between simple and fast access mode: dotted lines represent access time for simple access mode, while solid lines represent access time for fast access mode}
   \label{fig:test-simple-vs-fast}
 \end{figure}
 
-%\subsection{Real}
-%Real world memory read and write accesses have been recorder by tracing team, and they show the same results.
+\begin{figure}
+  \includegraphics[width=\textwidth]{img/flow.pdf}
+  \caption{execution time ratio between fast and simple access mode for some real world programs}
+  \label{fig:flow}
+\end{figure}
 
-%\begin{table}[H]
-%\center
-%\begin{tabular}{| c | c | c | c |}\hline
-%test	&	simple	& fast		& speedup \\ \hline
-%01	&	873617	& 819560	& 1.07 \\ \hline	% unk
-%02	&	1309183	& 655367	& 2.00 \\ \hline	% kate
-%03	&	1006501	& 1029926	& 0.98 \\ \hline	% ls
-%04	&	998589	& 980791	& 1.02 \\ \hline	% true
-%05	& 26256287	& 15204079	& 1.32 \\ \hline	% array
-%\end{tabular}
-%\caption{Time needed to perform 32768 memory access of various real world test programs}
-%\end{table}
+\begin{figure}
+  \center
+  \begin{subfigure}[b]{.45\textwidth}
+    \includegraphics[width=\textwidth]{img/flow-i.pdf}
+    \caption{}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{.45\textwidth}
+    \includegraphics[width=\textwidth]{img/flow-d.pdf}
+    \caption{}
+  \end{subfigure}
+
+  \caption{execution time ratio between fast and simple access mode for some real world programs, for (a) instructions flow only and (b) data flow only}
+  \label{fig:flow-i-d}
+\end{figure}
 
 \section{Transfer speed}
 Since this is a \emph{single data rate} memory, in short SDR, it is theoretically possible to read or write data from/to the memory once for every rising edge of the bus clock.
@@ -695,5 +709,22 @@ Thus, \memoryname{} has a maximum theoretical transfer speed of $32 \times 10^{3
 \section{Conclusion}
 As test benchmarks show, fast page access mode performs way better than simple mode when memory accesses are mainly sequential and not random, which is the case of most real world programs.
 Implementing the fast access mode thus is very strategic to obtain the best performances from \memoryname{} DRAM.
+
+\clearpage
+
+\begin{thebibliography}{0}
+\bibitem{bib:ibm}
+IBM -- Understanding DRAM Operation, \textit{1996}
+
+\bibitem{bib:jedec}
+Jedec Solid State Technology Association -- JES, Jedec Standard DRAM Specification, \textit{2003}
+
+\bibitem{bib:spectek}
+Spectek Micron Technology, Inc. -- Components part number catalog, \textit{2019}
+
+\bibitem{bib:tracing-team}
+Results of Tracing Team Project of Computer Architecture course, of Computer Engineering and Embedded Computing Systems at Università~di~Pisa, \textit{2019}
+
+\end{thebibliography}
 
 \end{document}
