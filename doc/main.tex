@@ -682,29 +682,29 @@ Figure~\ref{fig:flow-i-d} shows a comparison of execution time for the same vari
   \label{fig:flow-i-d}
 \end{figure}
 
-\section{Transfer speed}
-Since this is a \emph{single data rate} memory, in short SDR, it is theoretically possible to read or write data from/to the memory once for every rising edge of the bus clock.
+%~ \section{Transfer speed}
+%~ Since this is a \emph{single data rate} memory, in short SDR, it is theoretically possible to read or write data from/to the memory once for every rising edge of the bus clock.
 
-Thus, maximum theoretical transfer speed is given by the following formula:
+%~ Thus, maximum theoretical transfer speed is given by the following formula:
 
-$$ s_{max} =  f \cdot B_w $$
+%~ $$ s_{max} =  f \cdot B_w $$
 
-where
+%~ where
 
-\bgroup
-\def\arraystretch{1.5}
-\begin{table}[H]
-\center
-\begin{tabular}{| c | c | c |}\hline
-\textbf{symbol} & \textbf{unit} & \textbf{description} \\ \hline
-$ s_{max} $ & $ \frac{bit}{s} $ & maximum theoretical speed \\ \hline
-$ f $ & Hz & bus frequency \\ \hline
-$ B_{w} $ & bit & bus width \\ \hline
-\end{tabular}
-\end{table}
-\egroup
+%~ \bgroup
+%~ \def\arraystretch{1.5}
+%~ \begin{table}[H]
+%~ \center
+%~ \begin{tabular}{| c | c | c |}\hline
+%~ \textbf{symbol} & \textbf{unit} & \textbf{description} \\ \hline
+%~ $ s_{max} $ & $ \frac{bit}{s} $ & maximum theoretical speed \\ \hline
+%~ $ f $ & Hz & bus frequency \\ \hline
+%~ $ B_{w} $ & bit & bus width \\ \hline
+%~ \end{tabular}
+%~ \end{table}
+%~ \egroup
 
-Thus, \memoryname{} has a maximum theoretical transfer speed of $32 \times 10^{3} Hz \cdot 32 = 1.024 Mbit/s = 128 KiB/s $.
+%~ Thus, \memoryname{} has a maximum theoretical transfer speed of $32 \times 10^{3} Hz \cdot 32 = 1.024 Mbit/s = 128 KiB/s $.
 
 \section{Possible solutions}
 Results from tests show that, with real world programs, there is no gain in performances, even in fast access mode.
