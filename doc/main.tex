@@ -203,7 +203,7 @@ This document describes the working details of the main memory and the main bus 
 The main bus is divided into 16~bit for addresses and 32~bit for data.
 Bus runs at 32~kHz.
 
-\subsection{\memoryname{}}
+\subsection{\memoryname{} DRAM}
 \memoryname{} is a SDR DRAM, single data rate dynamic random access memory.
 
 It can hold a total amount of 512~Kbit (64~KiB) of data, and can be accessed as 16~K locations of 32~bit (4 B) each.
@@ -293,7 +293,7 @@ But since it is not necessary to perfectly reproduce the hardware behavior, and 
 
 Please also note that since simulation is sequential and modules are always notified in the same order, concurrency is not actually modeled, and some modules can suffer from starvation.
 
-\section{DRAM Internals}
+\section{DRAM internals}
 \subsection{Circuit}
 A common DRAM memory is internally organized like the circuit in Figure~\ref{img:dram-internals}.
 
