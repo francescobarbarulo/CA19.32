@@ -295,11 +295,11 @@ Please also note that since simulation is sequential and modules are always noti
 
 \section{DRAM Internals}
 \subsection{Circuit}
-A common DRAM memory is internally organized like the following circuit.
+A common DRAM memory is internally organized like the circuit in Figure~\ref{img:dram-internals}.
 
 A bit at the cross of the two dashed wires has been highlighted to help understanding.
 
-\begin{figure}[H]
+\begin{figure}
 \centering
 \begin{tikzpicture}
   % matrix square
@@ -350,6 +350,7 @@ A bit at the cross of the two dashed wires has been highlighted to help understa
 
 \end{tikzpicture}
 \caption{Simplified DRAM internal circuit}
+\label{img:dram-internals}
 \end{figure}
 
 \memoryname{} is a DRAM actually made by:
@@ -535,9 +536,9 @@ The simulator is organized in modules that interact each other by means of messa
 \subsection{Memory module}
 In the simplest computer, no cache is present, so memory is directly linked to CPU and must answer only to its requests.
 In order to test the \texttt{Memory} module, an additional \texttt{CPUTest} module has been implemented too.
-The \texttt{Memory} module is described in the following snippet of code:
+The \texttt{Memory} module is described in the snippet of code in Figure~\ref{src:memory-h}.
 
-\begin{figure}[H]
+\begin{figure}
 \lstinputlisting[style=castyle, firstline=33, lastline=63]{../src/memory/memory.h}
 \caption{Memory module declaration}
 \label{src:memory-h}
@@ -738,13 +739,14 @@ Results from tests show that, with real world programs, there is no gain in perf
 However, performances can be improved by:
 
 \begin{itemize}
-  \item using a cache, which, beside its main goal, also performs many subsequent sequential accesses when transferring a block;
+  \item using a cache, which, beside its main goal, also performs many subsequent sequential accesses when transferring a block, and separes instruction and data flows;
   \item implementing an hybrid hardware and software architecture, with two \memoryname{} DRAMs connected to the same bus, one to hold instructions and another one to hold data;
 \end{itemize}
 
-\section{Conclusion}
-As test benchmarks show, fast page access mode performs way better than simple mode when memory accesses are mainly sequential and not random, which is the case of most real world programs.
-Implementing the fast access mode thus is very strategic to obtain the best performances from \memoryname{} DRAM, even if this leaves space for further improvements.
+\section{Conclusions}
+As test benchmarks show, fast page access mode performs way better than simple mode when memory accesses are mainly sequential and not random, because it exploits real world programs' instructions' spatial locality.
+
+Implementing the fast access mode thus is very strategic to obtain the best performances from \memoryname{} DRAM, even if this leaves space for further improvements with caches.
 
 \clearpage
 
