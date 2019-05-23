@@ -357,7 +357,7 @@ To control and actually read and write a DRAM, the following control lines are u
 \end{itemize}
 
 Reading and writing data in the matrix requires strict timing constraints to allow capacitors, sense amplifier and all the electronics to work properly.
-Different timings can be used, as explained in the following section.
+Different timings can be used \cite{bib:ibm}, as explained in the following section.
 
 \section{DRAM control}
 
@@ -466,7 +466,7 @@ where:
   \item $r$ is the number of rows in the memory matrix;
 \end{itemize}
 
-To avoid losing too much charge in the capacitors, it is mandatory to refresh all the rows at maximum every 64~ms\cite{bib:jedec}.
+To avoid losing too much charge in the capacitors, it is mandatory to refresh all the rows at maximum every 64~ms \cite{bib:jedec}.
 \memoryname{} is implemented with a refresh every 32~ms.
 
 Duration of the interval between two refresh, in terms of number of bus clock cycles, can be computed using the following trivial formula:
@@ -617,7 +617,7 @@ where
   %\item \texttt{N\_OPERATIONS}: defines number of operations that will be performed;
   \item \texttt{ACCESS\_TYPE}: defines how the access sequence generated; access sequence is a sequence of (address, operation) tuples; it must be chosen among the following two options:
   \begin{itemize}
-    \item \texttt{R}: sequence is \emph{real} and is extracted using \emph{pinatrace} tool on a real world test program\cite{bib:tracing-team};
+    \item \texttt{R}: sequence is \emph{real} and is extracted using \emph{pinatrace} tool on a real world test program \cite{bib:tracing-team};
     \item \texttt{S}: a \emph{stochastic} sequence is generated randomly using \texttt{*\_PROB} parameters;
   \end{itemize}
   \item \texttt{MODE\_TYPE}: defines page access type; it must be chosen among the following two options:
@@ -652,7 +652,7 @@ Read and write accesses have been recorded \cite{bib:tracing-team} for some real
 
 Figure~\ref{fig:flow} shows a comparison of execution time for various real world programs addresses tracks, in simple access mode and fast access mode.
 
-Figure~\ref{fig:flow-i-d} shows a comparison of execution time for the same various real world programs address tracks, in simple access mode and fast access mode, if instruction and data flows are kept separated. These results can be used to build a possible hybrid hardware and software architecture to maximize performances.
+Figure~\ref{fig:flow-i-d} shows a comparison of execution time for the same various real world programs address tracks, in simple access mode and fast access mode, if instruction and data flows are kept separated.
 
 \begin{figure}
   \includegraphics[width=\textwidth]{img/test-simple-vs-fast.pdf}
@@ -706,9 +706,19 @@ $ B_{w} $ & bit & bus width \\ \hline
 
 Thus, \memoryname{} has a maximum theoretical transfer speed of $32 \times 10^{3} Hz \cdot 32 = 1.024 Mbit/s = 128 KiB/s $.
 
+\section{Possible solutions}
+Results from tests show that, with real world programs, there is no gain in performances, even in fast access mode.
+
+However, performances can be improved by:
+
+\begin{itemize}
+  \item using a cache, which, beside its main goal, also performs many subsequent sequential accesses when transferring a block;
+  \item implementing an hybrid hardware and software architecture, with two \memoryname{} DRAMs connected to the same bus, one to hold instructions and another one to hold data;
+\end{itemize}
+
 \section{Conclusion}
 As test benchmarks show, fast page access mode performs way better than simple mode when memory accesses are mainly sequential and not random, which is the case of most real world programs.
-Implementing the fast access mode thus is very strategic to obtain the best performances from \memoryname{} DRAM.
+Implementing the fast access mode thus is very strategic to obtain the best performances from \memoryname{} DRAM, even if this leaves space for further improvements.
 
 \clearpage
 
