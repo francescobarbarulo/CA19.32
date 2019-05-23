@@ -17,6 +17,9 @@
 \renewcommand{\labelitemii}{$\circ$}
 \renewcommand{\labelitemiii}{--}
 
+% Title spaces
+\usepackage{setspace}
+
 % Math packages
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -158,17 +161,38 @@
 \everymath{\mathtt{\xdef\tmp{\fam\the\fam\relax}\aftergroup\tmp}} % inline math
 \everydisplay{\mathtt{\xdef\tmp{\fam\the\fam\relax}\aftergroup\tmp}} % display math
 
-% Title
-\title{\memoryname{} DRAM}
-
-% Authors
-\author{G. Alvaro, F. Barbarulo, D. Comola, F. Fornaini, R. Polini, G.B. Rolandi}
 
 \begin{document}
-\maketitle
-\tableofcontents
+
+{\setstretch{1.0}
+  \begin{titlepage}
+  	\centering
+  	\includegraphics[width=6cm]{img/unipi.eps}\par
+    \vspace{1.5cm}
+    {\Large Department of Information Engineering \par}
+  	\vspace{1.5cm}
+  	{\huge\textsc{\memoryname{} DRAM}\par}
+  	\vspace{2cm}
+  	Gerardo \textsc{Alvaro}\par
+  	Francesco \textsc{Barbarulo}\par
+    Daniela \textsc{Comola}\par
+    Francesco \textsc{Fornaini}\par
+    Riccardo \textsc{Polini}\par
+    Giovan Battista \textsc{Rolandi}
+
+  	\vfill
+
+    % Bottom of the page
+  	{\large A.Y. 2018-2019\par}
+  \end{titlepage}
+}
 
 \clearpage
+~
+\clearpage
+
+\tableofcontents
+
 \clearpage
 
 \section{Introduction}
@@ -230,7 +254,7 @@ Physical main bus of \computername{} presents the following wires.
 Thus, main computer bus can be represented in the simulation software by means of the structure described in \figurename~\ref{src:bus-h}:
 
 \begin{figure}
-\lstinputlisting[style=castyle]{../src/bus/bus.h}
+\lstinputlisting[style=castyle, firstline=11, lastline=31]{../src/bus/bus.h}
 \caption{Bus structure declaration}
 \label{src:bus-h}
 \end{figure}
