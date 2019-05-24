@@ -164,6 +164,8 @@
 
 \begin{document}
 
+\pagenumbering{gobble}
+
 {\setstretch{1.0}
   \begin{titlepage}
   	\centering
@@ -195,6 +197,7 @@
 
 \clearpage
 
+\pagenumbering{arabic}
 \section{Introduction}
 
 This document describes the working details of the main memory and the main bus of the Computer~Architecture course computer.
@@ -679,21 +682,21 @@ Figure~\ref{fig:flow} shows a comparison of execution time for various real worl
 
 Figure~\ref{fig:flow-i-d} shows a comparison of execution time for the same various real world programs address tracks, in simple access mode and fast access mode, if instruction and data flows are kept separated.
 
-\begin{figure}
+\begin{figure}[H]
   \center
   \includegraphics[width=.8\textwidth]{img/test-simple-vs-fast.pdf}
   \caption{comparison between simple and fast access mode: dotted lines represent access time for simple access mode, while solid lines represent access time for fast access mode}
   \label{fig:test-simple-vs-fast}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
   \center
   \includegraphics[width=.8\textwidth]{img/flow.pdf}
   \caption{execution time ratio between fast and simple access mode for some real world programs}
   \label{fig:flow}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[H]
   \center
   \begin{subfigure}[b]{.8\textwidth}
     \includegraphics[width=\textwidth]{img/flow-i.pdf}
@@ -739,14 +742,14 @@ Results from tests show that, with real world programs, there is no gain in perf
 However, performances can be improved by:
 
 \begin{itemize}
-  \item using a cache, which, beside its main goal, also performs many subsequent sequential accesses when transferring a block, and separes instruction and data flows;
-  \item implementing an hybrid hardware and software architecture, with two \memoryname{} DRAMs connected to the same bus, one to hold instructions and another one to hold data;
+  \item using a cache, which, beside its main goal, also performs many subsequent sequential accesses when transferring a block, and separates instruction and data flows;
+  \item implementing an hybrid hardware and software architecture, with two \memoryname{} DRAMs connected to the same bus, one to hold instructions and the other one to hold data;
 \end{itemize}
 
 \section{Conclusions}
 As test benchmarks show, fast page access mode performs way better than simple mode when memory accesses are mainly sequential and not random, because it exploits real world programs' instructions' spatial locality.
 
-Implementing the fast access mode thus is very strategic to obtain the best performances from \memoryname{} DRAM, even if this leaves space for further improvements with caches.
+Thus implementing the fast access mode is very strategic to obtain the best performances from \memoryname{} DRAM, even if this leaves space for further improvements with caches.
 
 \clearpage
 
